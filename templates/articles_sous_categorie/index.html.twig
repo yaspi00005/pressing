@@ -1,302 +1,75 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}ArticlesCategories index{% endblock %}
-
+{% block title %}Sous-catégories{% endblock %}
+{% block page_title %}Sous-catégories{% endblock %}
 {% block body %}
-   <!-- Content -->
-        <div class="page-wrapper">
-			<div class="content">
-				<div class="buy-form">
-					<div class="row">
-						<div class="col-sm-5 col-4">
-							<h4 class="page-title"></h4>
-						</div>
-						<div class="col-sm-7 col-8 text-right m-b-30">
-							<a href="#" data-toggle="modal" data-target="#categorie" data-whatever="@mdo" class="btn btn-primary btn-rounded"><i class="fas fa-plus"></i> Ajouter une Sous-catégorie</a>
-						</div>
-					</div>
-				
-					<div class="row">
-						<div class="col-md-12">
-							<div class="table-responsive">
-								<table class="table table-striped custom-table mb-0">
-									<thead>
-										<tr>
-											<th>Nom</th>
-                                            <th>Code</th>
-                                            <th>Prix</th>
-											<th class="text-right">Action</th>
-										</tr>
-									</thead>
-									<tbody>
-                                    {% for articles_sous_categorie in articles_sous_categories %}
-                                        <tr>
-                                            <td>{{ articles_sous_categorie.noms }}</td>
-                                            <td>{{ articles_sous_categorie.codeArticles }}</td>
-                                            <td>{{ articles_sous_categorie.prix }}</td>
-											<td class="text-right">
-                                                <a class="" href="{{ path('app_articles_sous_categorie_edit',{'url' :articles_sous_categorie.url })  }}"><i class="fas fa-pencil-alt"></i> </a>
-                                    			<a class="" href="{{ path('app_articles_sous_categorie_show',{'url' :articles_sous_categorie.id })  }}"><i class="fas fa-trash m-l-5 m-r-5"></i></a>
-											</td>
-										</tr>
-                                    {% else %}
-                                        <tr>
-                                            <td colspan="3">no records found</td>
-                                        </tr>
-                                    {% endfor %}
-									</tbody>
-								</table>
-							</div>
-						</div>
-					</div>
-				</div>
-            </div>
-            <div class="notification-box">
-                <div class="msg-sidebar notifications msg-noti">
-                    <div class="topnav-dropdown-header">
-                        <span>Messages</span>
-                    </div>
-                    <div class="drop-scroll msg-list-scroll" id="msg_list">
-                        <ul class="list-box">
-                            <li>
-                                <a href="chat.html">
-                                    <div class="list-item">
-                                        <div class="list-left">
-                                            <span class="avatar">R</span>
-                                        </div>
-                                        <div class="list-body">
-                                            <span class="message-author">Richard Miles </span>
-                                            <span class="message-time">12:28 AM</span>
-                                            <div class="clearfix"></div>
-                                            <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="chat.html">
-                                    <div class="list-item new-message">
-                                        <div class="list-left">
-                                            <span class="avatar">J</span>
-                                        </div>
-                                        <div class="list-body">
-                                            <span class="message-author">John Doe</span>
-                                            <span class="message-time">1 Aug</span>
-                                            <div class="clearfix"></div>
-                                            <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="chat.html">
-                                    <div class="list-item">
-                                        <div class="list-left">
-                                            <span class="avatar">T</span>
-                                        </div>
-                                        <div class="list-body">
-                                            <span class="message-author"> Tarah Shropshire </span>
-                                            <span class="message-time">12:28 AM</span>
-                                            <div class="clearfix"></div>
-                                            <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="chat.html">
-                                    <div class="list-item">
-                                        <div class="list-left">
-                                            <span class="avatar">M</span>
-                                        </div>
-                                        <div class="list-body">
-                                            <span class="message-author">Mike Litorus</span>
-                                            <span class="message-time">12:28 AM</span>
-                                            <div class="clearfix"></div>
-                                            <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="chat.html">
-                                    <div class="list-item">
-                                        <div class="list-left">
-                                            <span class="avatar">C</span>
-                                        </div>
-                                        <div class="list-body">
-                                            <span class="message-author"> Catherine Manseau </span>
-                                            <span class="message-time">12:28 AM</span>
-                                            <div class="clearfix"></div>
-                                            <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="chat.html">
-                                    <div class="list-item">
-                                        <div class="list-left">
-                                            <span class="avatar">D</span>
-                                        </div>
-                                        <div class="list-body">
-                                            <span class="message-author"> Domenic Houston </span>
-                                            <span class="message-time">12:28 AM</span>
-                                            <div class="clearfix"></div>
-                                            <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="chat.html">
-                                    <div class="list-item">
-                                        <div class="list-left">
-                                            <span class="avatar">B</span>
-                                        </div>
-                                        <div class="list-body">
-                                            <span class="message-author"> Buster Wigton </span>
-                                            <span class="message-time">12:28 AM</span>
-                                            <div class="clearfix"></div>
-                                            <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="chat.html">
-                                    <div class="list-item">
-                                        <div class="list-left">
-                                            <span class="avatar">R</span>
-                                        </div>
-                                        <div class="list-body">
-                                            <span class="message-author"> Rolland Webber </span>
-                                            <span class="message-time">12:28 AM</span>
-                                            <div class="clearfix"></div>
-                                            <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="chat.html">
-                                    <div class="list-item">
-                                        <div class="list-left">
-                                            <span class="avatar">C</span>
-                                        </div>
-                                        <div class="list-body">
-                                            <span class="message-author"> Claire Mapes </span>
-                                            <span class="message-time">12:28 AM</span>
-                                            <div class="clearfix"></div>
-                                            <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="chat.html">
-                                    <div class="list-item">
-                                        <div class="list-left">
-                                            <span class="avatar">M</span>
-                                        </div>
-                                        <div class="list-body">
-                                            <span class="message-author">Melita Faucher</span>
-                                            <span class="message-time">12:28 AM</span>
-                                            <div class="clearfix"></div>
-                                            <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="chat.html">
-                                    <div class="list-item">
-                                        <div class="list-left">
-                                            <span class="avatar">J</span>
-                                        </div>
-                                        <div class="list-body">
-                                            <span class="message-author">Jeffery Lalor</span>
-                                            <span class="message-time">12:28 AM</span>
-                                            <div class="clearfix"></div>
-                                            <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="chat.html">
-                                    <div class="list-item">
-                                        <div class="list-left">
-                                            <span class="avatar">L</span>
-                                        </div>
-                                        <div class="list-body">
-                                            <span class="message-author">Loren Gatlin</span>
-                                            <span class="message-time">12:28 AM</span>
-                                            <div class="clearfix"></div>
-                                            <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="chat.html">
-                                    <div class="list-item">
-                                        <div class="list-left">
-                                            <span class="avatar">T</span>
-                                        </div>
-                                        <div class="list-body">
-                                            <span class="message-author">Tarah Shropshire</span>
-                                            <span class="message-time">12:28 AM</span>
-                                            <div class="clearfix"></div>
-                                            <span class="message-content">Lorem ipsum dolor sit amet, consectetur adipiscing</span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="topnav-dropdown-footer">
-                        <a href="chat.html">See all messages</a>
-                    </div>
-                </div>
-            </div>
-			    
-		</div>
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header flex-wrap">
+        <h4 class="card-title">Sous-catégories</h4>
+        <a href="#" data-bs-toggle="modal" data-bs-target="#categorie" class="btn btn-primary btn-rounded"><i class="fas fa-plus"></i> Ajouter une sous-catégorie</a>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped mb-0">
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Code</th>
+                <th>Prix</th>
+                <th class="text-end">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for articles_sous_categorie in articles_sous_categories %}
+                <tr>
+                  <td>{{ articles_sous_categorie.noms }}</td>
+                  <td>{{ articles_sous_categorie.codeArticles }}</td>
+                  <td>{{ articles_sous_categorie.prix }}</td>
+                  <td class="text-end">
+                    <a href="{{ path('app_articles_sous_categorie_edit',{'url' :articles_sous_categorie.url }) }}" title="Modifier"><i class="fas fa-pencil-alt"></i></a>
+                    <a href="{{ path('app_articles_sous_categorie_show',{'url' :articles_sous_categorie.id }) }}" title="Supprimer"><i class="fas fa-trash ms-2"></i></a>
+                  </td>
+                </tr>
+              {% else %}
+                <tr><td colspan="4">Aucun enregistrement</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-		<!-- Content End -->
-        <!-- Small modal -->
+      </div>
+    </div>
+  </div>
+</div>
 
-
-<div class="modal fade" id="categorie" tabindex="-1" role="dialog" aria-labelledby="categorieLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+<div class="modal fade" id="categorie" tabindex="-1" aria-labelledby="categorieLabel" aria-hidden="true">
+  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="categorieLabel">Nouvelle sous-catégorie</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
       </div>
-    {{ form_start(form) }}
+      {{ form_start(form) }}
       <div class="modal-body">
-          <div class="form-group">
-            <label for="recipient-name" class="col-form-label">Nom article:</label>
-           {{ form_widget(form.noms) }}
-          </div>
-          <div class="form-group">
-            <label for="recipient-name" class="col-form-label">Code article:</label>
-           {{ form_widget(form.codeArticles) }}
-          </div>
-          <div class="form-group">
-            <label for="recipient-name" class="col-form-label">Prix:</label>
-           {{ form_widget(form.prix) }}
-          </div>
-       
+        <div class="mb-3">
+          <label class="col-form-label">Nom article :</label>
+          {{ form_widget(form.noms) }}
+        </div>
+        <div class="mb-3">
+          <label class="col-form-label">Code article :</label>
+          {{ form_widget(form.codeArticles) }}
+        </div>
+        <div class="mb-3">
+          <label class="col-form-label">Prix :</label>
+          {{ form_widget(form.prix) }}
+        </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
         <button type="submit" class="btn btn-primary">Enregistrer</button>
       </div>
-     {{ form_end(form) }}
+      {{ form_end(form) }}
     </div>
   </div>
 </div>

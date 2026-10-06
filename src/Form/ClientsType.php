@@ -18,7 +18,7 @@ class ClientsType extends AbstractType
             ->add('prenom',TextType::class,['attr'=>['class' => 'form-control']])
             ->add('nom',TextType::class,['attr'=>['class' => 'form-control']])
             ->add('telephones',TelType::class,['attr'=>['class' => 'form-control']])
-            ->add('genres',ChoiceType::class,['attr'=>['class' => 'select',
+            ->add('genres',ChoiceType::class,['attr'=>['class' => 'form-select',
     ], 'choices'=>['Homme' => 'Homme','Femme' =>'Femme']])
             ->add('adresses',TextType::class,['attr'=>['class' => 'form-control']])
             ->add('email',TextType::class,['attr'=>['class' => 'form-control']])

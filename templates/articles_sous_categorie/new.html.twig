@@ -3,9 +3,9 @@
 {% block title %}New ArticlesSousCategorie{% endblock %}
 
 {% block body %}
-    <h1>Create new ArticlesSousCategorie</h1>
+    <h1 class="mb-3">Create new ArticlesSousCategorie</h1>
 
     {{ include('articles_sous_categorie/_form.html.twig') }}
 
-    <a href="{{ path('app_articles_sous_categorie_index') }}">back to list</a>
+    <a href="{{ path('app_articles_sous_categorie_index') }}" class="btn btn-light mt-3">Retour à la liste</a>
 {% endblock %}
