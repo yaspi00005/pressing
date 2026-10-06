@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block body %}
+<div class="row">
+  {% for stat in [
+    {label: 'Clients', value: nb_clients, icon: 'fa-user', url: path('app_clients_index')},
+    {label: 'Catégories', value: nb_categories, icon: 'fa-shirt', url: path('app_articles_categories_index')},
+    {label: 'Articles', value: nb_articles, icon: 'fa-tags', url: path('app_articles_categories_index')}
+  ] %}
+    <div class="col-xl-4 col-sm-6">
+      <a href="{{ stat.url }}" class="card d-block text-decoration-none">
+        <div class="card-body d-flex align-items-center justify-content-between">
+          <div>
+            <p class="mb-1 text-muted">{{ stat.label }}</p>
+            <h2 class="mb-0">{{ stat.value }}</h2>
+          </div>
+          <i class="fas {{ stat.icon }} fa-2x text-primary"></i>
+        </div>
+      </a>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}
