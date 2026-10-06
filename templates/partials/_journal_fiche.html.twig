@@ -1,0 +1,15 @@
+{# Historique des modifications au bas d'une fiche. Paramètre : entrees #}
+<div class="card">
+    <div class="card-header"><h4 class="card-title"><i class="fas fa-history text-primary me-2"></i>Historique</h4></div>
+    <div class="card-body pt-0">
+        {% if entrees %}
+            <ul class="list-unstyled journal-liste mb-0">
+                {% for e in entrees %}
+                    <li><span class="text-muted">{{ e.createdAt|date('d/m/Y H:i') }}</span> · <strong>{{ e.user ? e.user.nomComplet : 'Système' }}</strong> — {{ e.libelle }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted mb-0">Aucune activité enregistrée.</p>
+        {% endif %}
+    </div>
+</div>

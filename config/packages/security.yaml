@@ -3,6 +3,10 @@ security:
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+    role_hierarchy:
+        ROLE_ADMIN: [ROLE_RECEPTION, ROLE_ATELIER]
+        ROLE_RECEPTION: [ROLE_USER]
+        ROLE_ATELIER: [ROLE_USER]
     providers:
         # used to reload user from session & other features (e.g. switch_user)
         app_user_provider:
@@ -17,6 +21,7 @@ security:
             lazy: true
             provider: app_user_provider
             custom_authenticator: App\Security\UserAuthenticator
+            user_checker: App\Security\UserChecker
             logout:
                 path: app_logout
                 # where to redirect after logout
@@ -37,8 +42,17 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/$, roles: PUBLIC_ACCESS }
+        - { path: ^/logout$, roles: PUBLIC_ACCESS }
+        - { path: ^/(manifest.webmanifest|sw.js)$, roles: PUBLIC_ACCESS }
+        # Administration, tarifs, dépenses, catalogue : administrateur
+        - { path: ^/(administration|register|tarifs|depenses|articles), roles: ROLE_ADMIN }
+        # Clients, paiements, réclamations : réception / caisse
+        - { path: ^/(clients|caisse|paiements|reclamations), roles: ROLE_RECEPTION }
+        # Stock : atelier (et administrateur)
+        - { path: ^/stock, roles: ROLE_ATELIER }
+        # Tout le reste (tableau de bord, guichet, commandes…) : toute personne connectée
+        - { path: ^/, roles: ROLE_USER }
 
 when@test:
     security:

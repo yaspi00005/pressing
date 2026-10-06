@@ -1,53 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Modifier le client{% endblock %}
-{% block page_title %}Clients{% endblock %}
-{% block body %}
-<div class="row">
-  <div class="col-lg-8 offset-lg-2">
-    <div class="card">
-      <div class="card-header"><h4 class="card-title">Modifier le client</h4></div>
-      <div class="card-body">
-        {{ form_start(form) }}
-        <div class="row">
-          <div class="col-sm-6 mb-3">
-            <label class="form-label">Prénom <span class="text-danger">*</span></label>
-            {{ form_errors(form.prenom) }}
-            {{ form_widget(form.prenom) }}
-          </div>
-          <div class="col-sm-6 mb-3">
-            <label class="form-label">Nom <span class="text-danger">*</span></label>
-            {{ form_errors(form.nom) }}
-            {{ form_widget(form.nom) }}
-          </div>
-          <div class="col-sm-6 mb-3">
-            <label class="form-label">Téléphone <span class="text-danger">*</span></label>
-            {{ form_errors(form.telephones) }}
-            {{ form_widget(form.telephones) }}
-          </div>
-          <div class="col-sm-6 mb-3">
-            <label class="form-label">Courriel <span class="text-danger">*</span></label>
-            {{ form_errors(form.email) }}
-            {{ form_widget(form.email) }}
-          </div>
-          <div class="col-sm-6 mb-3">
-            <label class="form-label">Adresse</label>
-            {{ form_errors(form.adresses) }}
-            {{ form_widget(form.adresses) }}
-          </div>
-          <div class="col-sm-6 mb-3">
-            <label class="form-label">Genres</label>
-            {{ form_errors(form.genres) }}
-            {{ form_widget(form.genres) }}
-          </div>
-        </div>
-        <div class="text-center mt-3">
-          <button class="btn btn-primary">Modifier</button>
-          <a href="{{ path('app_clients_index') }}" class="btn btn-light ms-2">Retour à la liste</a>
-        </div>
-        {{ form_end(form) }}
-      </div>
-    </div>
-  </div>
-</div>
-{% endblock %}
+{% block title %}Modifier {{ client.nomComplet }}{% endblock %}
+{% set fil = [{label: 'Clients', url: path('app_clients_index')}, {label: client.nomComplet, url: path('app_clients_show', {id: client.id})}] %}
+
+{% block body %}{{ include('clients/_formulaire.html.twig', {titre: 'Modifier le client'}) }}{% endblock %}

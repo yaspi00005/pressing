@@ -1,36 +1,55 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ client.nomComplet }}{% endblock %}
-{% block page_title %}Client{% endblock %}
+{% set fil = [{label: 'Clients', url: path('app_clients_index')}] %}
 
 {% block body %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 entete-fiche">
+    <div class="d-flex align-items-center gap-2">
+        <h3>{{ client.nomComplet }}</h3>
+        {% if solde_du > 0 %}<span class="badge bg-danger">Doit {{ solde_du|money }}</span>{% endif %}
+        <span class="badge bg-primary">{{ client.pointsFidelite }} pt{{ client.pointsFidelite > 1 ? 's' }}</span>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{{ path('app_clients_edit', {id: client.id}) }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-pen"></i> Modifier</a>
+        <a href="{{ path('app_commande_new', {client: client.id}) }}" class="btn btn-primary btn-sm btn-rounded"><i class="fas fa-plus"></i> Nouvelle commande</a>
+    </div>
+</div>
+
 <div class="row">
-  <div class="col-xl-4">
-    <div class="card">
-      <div class="card-header"><h4 class="card-title">{{ client.nomComplet }}</h4></div>
-      <div class="card-body">
-        <p class="mb-1"><i class="fas fa-phone"></i> {{ client.telephones }}</p>
-        <p class="mb-1"><i class="fas fa-envelope"></i> {{ client.email }}</p>
-        <p class="mb-1"><i class="fas fa-map-marker-alt"></i> {{ client.adresses }}</p>
-        <p class="mb-3"><i class="fas fa-venus-mars"></i> {{ client.genres }}</p>
-        {% if client.notes %}<p class="text-muted">{{ client.notes }}</p>{% endif %}
-        <hr>
-        <p class="mb-1">Total dépensé : <strong>{{ total_depense|money }}</strong></p>
-        <p class="mb-1">Solde dû : <strong class="{{ solde_du ? 'text-warning' : 'text-success' }}">{{ solde_du|money }}</strong></p>
-        <p>Points fidélité : <span class="badge bg-primary">{{ client.pointsFidelite }}</span></p>
-        <a href="{{ path('app_commande_new', {client: client.id}) }}" class="btn btn-primary w-100 mb-2"><i class="fas fa-plus"></i> Nouvelle commande</a>
-        <a href="{{ path('app_clients_edit', {id: client.id}) }}" class="btn btn-light w-100">Modifier</a>
-        {{ include('clients/_delete_form.html.twig') }}
-      </div>
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header"><h4 class="card-title"><i class="fas fa-receipt text-primary me-2"></i>Commandes ({{ commandes|length }})</h4></div>
+            <div class="card-body pt-0"><div class="table-responsive">{{ include('commande/_table.html.twig', {commandes: commandes}) }}</div></div>
+        </div>
+        {{ include('partials/_journal_fiche.html.twig', {entrees: journal}) }}
     </div>
-  </div>
-  <div class="col-xl-8">
-    <div class="card">
-      <div class="card-header"><h4 class="card-title">Historique des commandes ({{ commandes|length }})</h4></div>
-      <div class="card-body">
-        <div class="table-responsive">{% include 'commande/_table.html.twig' %}</div>
-      </div>
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-header"><h4 class="card-title"><i class="fas fa-id-card text-primary me-2"></i>Coordonnées</h4></div>
+            <div class="card-body">
+                <p class="mb-1"><i class="fas fa-phone text-muted me-2"></i>{{ client.telephones }}</p>
+                <p class="mb-1"><i class="fas fa-envelope text-muted me-2"></i>{{ client.email }}</p>
+                <p class="mb-1"><i class="fas fa-map-marker-alt text-muted me-2"></i>{{ client.adresses }}</p>
+                <p class="mb-0"><i class="fas fa-venus-mars text-muted me-2"></i>{{ client.genres }}</p>
+                {% if client.notes %}<hr><p class="text-muted mb-0">{{ client.notes }}</p>{% endif %}
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h4 class="card-title"><i class="fas fa-wallet text-primary me-2"></i>Résumé</h4></div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tr><td>Total dépensé</td><td class="num">{{ total_depense|money }}</td></tr>
+                    <tr><td>Solde dû</td><td class="num {{ solde_du ? 'text-danger fw-bold' : 'text-success' }}">{{ solde_du|money }}</td></tr>
+                    <tr><td>Client depuis</td><td class="num">{{ client.createdAt ? client.createdAt|date('d/m/Y') : '—' }}</td></tr>
+                </table>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                {{ include('clients/_delete_form.html.twig') }}
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 {% endblock %}

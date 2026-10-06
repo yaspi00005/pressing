@@ -1,48 +1,67 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Clients{% endblock %}
-{% block page_title %}Clients{% endblock %}
-{% block stylesheets %}{{ include('partials/_datatable_css.html.twig') }}{% endblock %}
+
 {% block body %}
-<div class="row">
-  <div class="col-12">
-    <div class="card">
-      <div class="card-header flex-wrap">
-        <h4 class="card-title">Liste des clients</h4>
-        <a href="{{ path('app_clients_new') }}" class="btn btn-primary btn-rounded"><i class="fas fa-plus"></i> Nouveau client</a>
-      </div>
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-striped datatable" style="min-width: 600px">
-            <thead>
-              <tr>
-                <th>Clients</th>
-                <th>Téléphones</th>
-                <th>Genres</th>
-                <th>Adresse</th>
-                <th class="text-center no-sort">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for client in clients %}
-                <tr>
-                  <td>{{ client.prenom }} {{ client.nom }}</td>
-                  <td>{{ client.telephones }}</td>
-                  <td>{{ client.genres }}</td>
-                  <td>{{ client.adresses }}</td>
-                  <td class="text-center">
-                    <a href="{{ path('app_clients_show', {'id': client.id}) }}" title="Fiche et historique"><i class="fas fa-eye"></i></a>
-                    <a href="{{ path('app_commande_new', {client: client.id}) }}" class="ms-2" title="Nouvelle commande"><i class="fas fa-plus-circle"></i></a>
-                    <a href="{{ path('app_clients_edit', {'id': client.id}) }}" class="ms-2" title="Modifier"><i class="fas fa-edit"></i></a>
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+<div class="card">
+    <div class="card-header flex-wrap gap-2">
+        <h4 class="card-title">{{ pagination.total }} client{{ pagination.total > 1 ? 's' }}</h4>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ path('app_clients_export', app.request.query.all) }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-file-excel"></i> Export Excel</a>
+            <a href="{{ path('app_clients_new') }}" class="btn btn-primary btn-sm btn-rounded"><i class="fas fa-plus"></i> Nouveau client</a>
         </div>
-      </div>
     </div>
-  </div>
+    <div class="card-body">
+        <form method="get" class="row g-2 filtres-liste">
+            <div class="col-md-6"><input type="search" name="q" value="{{ filtres.q }}" class="form-control" placeholder="Nom, téléphone, courriel, adresse…"></div>
+            <div class="col-md-3">
+                <select name="genre" class="form-select js-auto-submit">
+                    <option value="">Tous genres</option>
+                    <option value="Homme" {{ filtres.genre == 'Homme' ? 'selected' }}>Homme</option>
+                    <option value="Femme" {{ filtres.genre == 'Femme' ? 'selected' }}>Femme</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-1">
+                <button class="btn btn-primary btn-sm flex-fill" title="Filtrer"><i class="fas fa-filter"></i> Filtrer</button>
+                <a href="{{ path('app_clients_index') }}" class="btn btn-light btn-sm" title="Réinitialiser"><i class="fas fa-times"></i></a>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Téléphone</th>
+                        <th class="d-none d-md-table-cell">Adresse</th>
+                        <th class="num">Commandes</th>
+                        <th class="num">Solde dû</th>
+                        <th class="num">Points</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in pagination.items %}
+                        {% set s = stats[c.id]|default({nb: 0, solde: 0}) %}
+                        <tr>
+                            <td><a href="{{ path('app_clients_show', {id: c.id}) }}" class="text-primary fw-bold">{{ c.nomComplet }}</a><br><small>{{ c.genres }}{% if c.email %} · {{ c.email }}{% endif %}</small></td>
+                            <td>{{ c.telephones }}</td>
+                            <td class="d-none d-md-table-cell">{{ c.adresses }}</td>
+                            <td class="num">{{ s.nb }}</td>
+                            <td class="num {{ s.solde > 0 ? 'text-danger fw-bold' }}">{{ s.solde|money }}</td>
+                            <td class="num">{{ c.pointsFidelite }}</td>
+                            <td class="text-end text-nowrap">
+                                <a href="{{ path('app_commande_new', {client: c.id}) }}" class="btn btn-primary btn-xs sharp" title="Nouvelle commande"><i class="fas fa-plus"></i></a>
+                                <a href="{{ path('app_clients_edit', {id: c.id}) }}" class="btn btn-outline-secondary btn-xs sharp" title="Modifier"><i class="fas fa-pen"></i></a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        {{ include('partials/_empty_state.html.twig', {colonnes: 7, message: 'Aucun client ne correspond.', icone: 'fa-users'}, with_context = false) }}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {{ include('partials/_pagination.html.twig') }}
+    </div>
 </div>
 {% endblock %}
-{% block javascripts %}{{ include('partials/_datatable_js.html.twig') }}{% endblock %}

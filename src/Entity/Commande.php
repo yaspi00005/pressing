@@ -95,6 +95,13 @@ class Commande
     #[ORM\Column]
     private bool $pointsCredites = false;
 
+    /** Total et montant payé mémorisés (pour filtrer, trier et additionner en SQL) ; recalculés par recalculer(). */
+    #[ORM\Column(options: ['default' => 0])]
+    private int $total = 0;
+
+    #[ORM\Column(options: ['default' => 0])]
+    private int $montantPaye = 0;
+
     /** @var Collection<int, LigneCommande> */
     #[ORM\OneToMany(mappedBy: 'commande', targetEntity: LigneCommande::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $lignes;
@@ -385,6 +392,15 @@ class Commande
         return max(0, $this->getSousTotal() + $this->getMajoration() + $this->fraisLivraison - $this->remise);
     }
 
+    /** Met à jour les montants mémorisés à partir des lignes et des paiements. */
+    public function recalculer(): static
+    {
+        $this->total = $this->getTotal();
+        $this->montantPaye = $this->getTotalPaye();
+
+        return $this;
+    }
+
     public function getTotalPaye(): int
     {
         $total = 0;
@@ -398,6 +414,20 @@ class Commande
     public function getReste(): int
     {
         return max(0, $this->getTotal() - $this->getTotalPaye());
+    }
+
+    /** paye | partiel | impaye | annule */
+    public function getStatutPaiement(): string
+    {
+        if (self::STATUT_ANNULE === $this->statut) {
+            return 'annule';
+        }
+        $reste = $this->getReste();
+        if (0 === $reste) {
+            return 'paye';
+        }
+
+        return $this->getTotalPaye() > 0 ? 'partiel' : 'impaye';
     }
 
     public function isSolde(): bool

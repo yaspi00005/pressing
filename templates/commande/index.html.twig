@@ -1,39 +1,49 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Commandes{% endblock %}
-{% block page_title %}Commandes{% endblock %}
 
 {% block body %}
 <div class="card">
-  <div class="card-header flex-wrap">
-    <h4 class="card-title">Commandes</h4>
-    <a href="{{ path('app_commande_new') }}" class="btn btn-primary btn-rounded"><i class="fas fa-plus"></i> Nouvelle commande</a>
-  </div>
-  <div class="card-body">
-    <form method="get" class="row g-2 mb-3">
-      <div class="col-md-5">
-        <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="N° de commande, nom ou téléphone du client…">
-      </div>
-      <div class="col-md-3">
-        <select name="statut" class="form-select" onchange="this.form.submit()">
-          <option value="">Tous les statuts</option>
-          {% for key, label in constant('App\\Entity\\Commande::STATUTS') %}
-            <option value="{{ key }}" {{ statut == key ? 'selected' }}>{{ label }} ({{ compteurs[key]|default(0) }})</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="col-md-2">
-        <select name="filtre" class="form-select" onchange="this.form.submit()">
-          <option value="">Toutes</option>
-          <option value="retard" {{ filtre == 'retard' ? 'selected' }}>En retard</option>
-          <option value="impayes" {{ filtre == 'impayes' ? 'selected' }}>Impayées</option>
-        </select>
-      </div>
-      <div class="col-md-2"><button class="btn btn-light w-100">Rechercher</button></div>
-    </form>
-    <div class="table-responsive">
-      {% include 'commande/_table.html.twig' %}
+    <div class="card-header flex-wrap gap-2">
+        <h4 class="card-title">{{ totaux.nb }} commande{{ totaux.nb > 1 ? 's' }}</h4>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ path('app_commande_export', app.request.query.all) }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-file-excel"></i> Export Excel</a>
+            {% if is_granted('ROLE_RECEPTION') %}<a href="{{ path('app_commande_new') }}" class="btn btn-primary btn-sm btn-rounded"><i class="fas fa-plus"></i> Nouvelle commande</a>{% endif %}
+        </div>
     </div>
-  </div>
+    <div class="card-body">
+        {# Filtres : ils sont dans l'adresse de la page (on peut la partager ou y revenir) #}
+        <form method="get" class="row g-2 filtres-liste">
+            <div class="col-md-3"><input type="search" name="q" value="{{ filtres.q }}" class="form-control" placeholder="N° de ticket, client, tél."></div>
+            <div class="col-md-2">
+                <select name="statut" class="form-select js-auto-submit">
+                    <option value="">Tous statuts</option>
+                    {% for cle, label in constant('App\\Entity\\Commande::STATUTS') %}<option value="{{ cle }}" {{ filtres.statut == cle ? 'selected' }}>{{ label }} ({{ compteurs[cle]|default(0) }})</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="filtre" class="form-select js-auto-submit">
+                    <option value="">Toutes</option>
+                    <option value="encours" {{ filtres.filtre == 'encours' ? 'selected' }}>En cours</option>
+                    <option value="retard" {{ filtres.filtre == 'retard' ? 'selected' }}>En retard</option>
+                    {% if is_granted('ROLE_RECEPTION') %}<option value="impayes" {{ filtres.filtre == 'impayes' ? 'selected' }}>Impayées</option>{% endif %}
+                    <option value="urgent" {{ filtres.filtre == 'urgent' ? 'selected' }}>Express</option>
+                </select>
+            </div>
+            <div class="col-md-2 col-6"><input type="date" name="du" value="{{ filtres.du }}" class="form-control js-auto-submit" aria-label="Du"></div>
+            <div class="col-md-2 col-6"><input type="date" name="au" value="{{ filtres.au }}" class="form-control js-auto-submit" aria-label="Au"></div>
+            <div class="col-md-1 d-flex gap-1">
+                <button class="btn btn-primary btn-sm flex-fill" title="Filtrer"><i class="fas fa-filter"></i></button>
+                <a href="{{ path('app_commande_index') }}" class="btn btn-light btn-sm" title="Réinitialiser"><i class="fas fa-times"></i></a>
+            </div>
+        </form>
+
+        {% if is_granted('ROLE_RECEPTION') %}
+            <p class="small text-muted mb-2">Sélection : total <strong>{{ totaux.total|money }}</strong> · payé <strong>{{ totaux.paye|money }}</strong> · reste <strong class="{{ totaux.reste ? 'text-danger' }}">{{ totaux.reste|money }}</strong></p>
+        {% endif %}
+
+        <div class="table-responsive">{{ include('commande/_table.html.twig', {commandes: pagination.items}) }}</div>
+        {{ include('partials/_pagination.html.twig') }}
+    </div>
 </div>
 {% endblock %}

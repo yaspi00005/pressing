@@ -1,0 +1,50 @@
+{# Menu latéral, dans l'ordre du parcours d'une commande : accueil → guichet → commandes → clients → paiements → catalogue → administration. #}
+{% macro entree(url, icone, libelle) %}
+    <li><a href="{{ url }}" aria-expanded="false"><i class="fas {{ icone }}"></i><span class="nav-text">{{ libelle }}</span></a></li>
+{% endmacro %}
+{% import _self as m %}
+<ul class="metismenu" id="menu">
+    {{ m.entree(path('app_dashboard'), 'fa-home', 'Tableau de bord') }}
+    {{ m.entree(path('app_guichet'), 'fa-search', 'Guichet') }}
+    <li>
+        <a class="has-arrow" href="#" aria-expanded="false"><i class="fas fa-receipt"></i><span class="nav-text">Commandes</span></a>
+        <ul aria-expanded="false">
+            {% if is_granted('ROLE_RECEPTION') %}<li><a href="{{ path('app_commande_new') }}">Nouvelle commande</a></li>{% endif %}
+            <li><a href="{{ path('app_commande_index') }}">Toutes les commandes</a></li>
+            <li><a href="{{ path('app_commande_index', {filtre: 'retard'}) }}">En retard</a></li>
+            {% if is_granted('ROLE_RECEPTION') %}<li><a href="{{ path('app_commande_index', {filtre: 'impayes'}) }}">Impayées</a></li>{% endif %}
+        </ul>
+    </li>
+    {% if is_granted('ROLE_RECEPTION') %}
+        <li>
+            <a class="has-arrow" href="#" aria-expanded="false"><i class="fas fa-user"></i><span class="nav-text">Clients</span></a>
+            <ul aria-expanded="false">
+                <li><a href="{{ path('app_clients_new') }}">Nouveau client</a></li>
+                <li><a href="{{ path('app_clients_index') }}">Liste des clients</a></li>
+            </ul>
+        </li>
+        {{ m.entree(path('app_caisse'), 'fa-cash-register', 'Paiements') }}
+        {{ m.entree(path('app_reclamation_index'), 'fa-comment-dots', 'Réclamations') }}
+    {% endif %}
+    {% if is_granted('ROLE_ATELIER') %}
+        {{ m.entree(path('app_stock_index'), 'fa-boxes', 'Stock produits') }}
+    {% endif %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <li>
+            <a class="has-arrow" href="#" aria-expanded="false"><i class="fas fa-tshirt"></i><span class="nav-text">Catalogue</span></a>
+            <ul aria-expanded="false">
+                <li><a href="{{ path('app_articles_categories_index') }}">Catégories</a></li>
+                <li><a href="{{ path('app_articles_sous_categorie_index') }}">Articles</a></li>
+                <li><a href="{{ path('app_tarif_index') }}">Services &amp; tarifs</a></li>
+            </ul>
+        </li>
+        <li>
+            <a class="has-arrow" href="#" aria-expanded="false"><i class="fas fa-cog"></i><span class="nav-text">Administration</span></a>
+            <ul aria-expanded="false">
+                <li><a href="{{ path('app_depense_index') }}">Dépenses</a></li>
+                <li><a href="{{ path('app_admin_users') }}">Utilisateurs</a></li>
+                <li><a href="{{ path('app_admin_journal') }}">Journal d'activité</a></li>
+            </ul>
+        </li>
+    {% endif %}
+</ul>

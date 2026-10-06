@@ -17,8 +17,8 @@
     @media print { .actions { display: none; } body { width: auto; } }
   </style>
 </head>
-<body>
-  <div class="actions"><button onclick="window.print()">Imprimer</button></div>
+<body data-auto-print>
+  <div class="actions"><button type="button" data-print>Imprimer</button></div>
   <h1>{{ pressing.nom }}</h1>
   {% if pressing.adresse %}<p>{{ pressing.adresse }}</p>{% endif %}
   {% if pressing.telephone %}<p>Tél : {{ pressing.telephone }}</p>{% endif %}
@@ -46,6 +46,7 @@
   <hr>
   <p>Ticket à présenter au retrait.</p>
   <p>Merci de votre confiance !</p>
-  <script>window.addEventListener('load', function () { if (location.hash === '#print') window.print(); });</script>
+  
+  <script src="{{ asset('js/pressing.js') }}"></script>
 </body>
 </html>

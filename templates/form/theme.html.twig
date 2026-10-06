@@ -1,0 +1,10 @@
+{# Habillage des formulaires Symfony : Bootstrap 5 (rangées « mb-3 ») + messages d'erreur sous le champ. #}
+{% use 'bootstrap_5_layout.html.twig' %}
+
+{% block form_errors -%}
+    {%- if errors|length > 0 -%}
+        {%- for error in errors -%}
+            <div class="invalid-feedback d-block">{{ error.message }}</div>
+        {%- endfor -%}
+    {%- endif %}
+{%- endblock form_errors %}

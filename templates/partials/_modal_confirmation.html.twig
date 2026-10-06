@@ -1,0 +1,17 @@
+{# Fenêtre « Êtes-vous sûr ? » commune. S'utilise avec des attributs sur un formulaire ou un lien :
+   data-confirm="Message" data-confirm-titre="Titre" data-confirm-type="danger|primary" data-confirm-bouton="Oui, supprimer" #}
+<div class="modal fade" id="modal-confirmation" tabindex="-1" aria-labelledby="modal-confirmation-titre" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-confirmation-titre">Confirmer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body"><p class="mb-0" id="modal-confirmation-message"></p></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="modal-confirmation-ok">Confirmer</button>
+            </div>
+        </div>
+    </div>
+</div>

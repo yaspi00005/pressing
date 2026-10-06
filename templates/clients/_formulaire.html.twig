@@ -1,0 +1,25 @@
+{# Formulaire client commun (création / modification) : carte centrée, boutons en bas à droite #}
+<div class="row justify-content-center">
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header"><h4 class="card-title"><i class="fas fa-user text-primary me-2"></i>{{ titre }}</h4></div>
+            <div class="card-body">
+                {{ form_start(form) }}
+                    <div class="row">
+                        <div class="col-md-6">{{ form_row(form.prenom, {label: 'Prénom'}) }}</div>
+                        <div class="col-md-6">{{ form_row(form.nom, {label: 'Nom'}) }}</div>
+                        <div class="col-md-6">{{ form_row(form.telephones, {label: 'Téléphone'}) }}</div>
+                        <div class="col-md-6">{{ form_row(form.email, {label: 'Courriel'}) }}</div>
+                        <div class="col-md-6">{{ form_row(form.adresses, {label: 'Adresse'}) }}</div>
+                        <div class="col-md-6">{{ form_row(form.genres, {label: 'Genre'}) }}</div>
+                    </div>
+                    {{ form_rest(form) }}
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ client.id ? path('app_clients_show', {id: client.id}) : path('app_clients_index') }}" class="btn btn-light">Annuler</a>
+                        <button class="btn btn-primary">Enregistrer</button>
+                    </div>
+                {{ form_end(form, {render_rest: false}) }}
+            </div>
+        </div>
+    </div>
+</div>

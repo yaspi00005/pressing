@@ -1,0 +1,26 @@
+{# Fenêtre listant toutes les erreurs d'un formulaire d'un coup, avec l'emplacement du champ (« Articles › Article n° 2 › Prix »). #}
+{% macro erreurs(vue, chemin) %}
+    {% import _self as m %}
+    {% for e in vue.vars.errors %}
+        <li>{% if chemin %}<strong>{{ chemin|join(' › ') }} :</strong> {% endif %}{{ e.message }}</li>
+    {% endfor %}
+    {% for enfant in vue %}
+        {% set nom = enfant.vars.name %}
+        {% set etiquette = enfant.vars.label ?: (nom|humanize) %}
+        {% set suite = nom matches '/^\\d+$/' ? chemin|merge(['n° ' ~ (nom + 1)]) : chemin|merge([etiquette]) %}
+        {{ m.erreurs(enfant, suite) }}
+    {% endfor %}
+{% endmacro %}
+{% import _self as m %}
+<div class="modal fade" id="modal-erreurs" tabindex="-1" aria-hidden="true" data-ouvrir-modal>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-exclamation-circle text-danger me-2"></i>Le formulaire contient des erreurs</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body"><ul class="mb-0 ps-3">{{ m.erreurs(form, []) }}</ul></div>
+            <div class="modal-footer"><button type="button" class="btn btn-primary" data-bs-dismiss="modal">Corriger</button></div>
+        </div>
+    </div>
+</div>

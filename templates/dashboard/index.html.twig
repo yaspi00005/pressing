@@ -1,103 +1,120 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Tableau de bord{% endblock %}
-{% block page_title %}Tableau de bord{% endblock %}
+{% block breadcrumb %}{% endblock %}
+
+{% macro carte(libelle, valeur, icone, couleur, url, detail) %}
+    <div class="col-xl-3 col-sm-6 col-6">
+        <a href="{{ url }}" class="card d-block text-decoration-none carte-chiffre">
+            <div class="card-body d-flex align-items-center gap-3">
+                <span class="icone bg-{{ couleur }}-subtle text-{{ couleur }}"><i class="fas {{ icone }}"></i></span>
+                <div>
+                    <div class="valeur">{{ valeur }}</div>
+                    <div class="legende">{{ libelle }}{% if detail %} · {{ detail }}{% endif %}</div>
+                </div>
+            </div>
+        </a>
+    </div>
+{% endmacro %}
+{% import _self as m %}
 
 {% block body %}
-<div class="row">
-  {% set stats = [
-    {label: "Encaissé aujourd'hui", value: encaisse_jour|money, icon: 'fa-coins', color: 'success', url: path('app_caisse')},
-    {label: 'Dépôts du jour', value: depots_jour, icon: 'fa-inbox', color: 'primary', url: path('app_commande_index')},
-    {label: 'À retirer (prêtes)', value: a_retirer|length, icon: 'fa-box-open', color: 'info', url: path('app_commande_index', {statut: 'pret'})},
-    {label: 'En retard', value: en_retard|length, icon: 'fa-clock', color: 'danger', url: path('app_commande_index', {filtre: 'retard'})},
-    {label: 'Impayés', value: total_impaye|money, icon: 'fa-hand-holding-usd', color: 'warning', url: path('app_commande_index', {filtre: 'impayes'})},
-    {label: 'Encaissé ce mois', value: encaisse_mois|money, icon: 'fa-chart-line', color: 'success', url: path('app_caisse')},
-    {label: 'Dépenses du mois', value: depenses_mois|money, icon: 'fa-wallet', color: 'secondary', url: path('app_depense_index')},
-    {label: 'Résultat du mois', value: benefice_mois|money, icon: 'fa-balance-scale', color: (benefice_mois >= 0 ? 'primary' : 'danger'), url: path('app_depense_index')},
-  ] %}
-  {% for stat in stats %}
-    <div class="col-xl-3 col-sm-6">
-      <a href="{{ stat.url }}" class="card d-block text-decoration-none">
-        <div class="card-body d-flex align-items-center justify-content-between">
-          <div>
-            <p class="mb-1 text-muted">{{ stat.label }}</p>
-            <h3 class="mb-0">{{ stat.value }}</h3>
-          </div>
-          <i class="fas {{ stat.icon }} fa-2x text-{{ stat.color }}"></i>
-        </div>
-      </a>
+{# Bandeau d'accueil #}
+<div class="bandeau-accueil">
+    <div>
+        <h3>Bonjour {{ app.user.prenom }} 👋</h3>
+        <p class="small">{{ nb_en_cours }} commande(s) en cours · {{ nb_pretes }} prête(s) à retirer · {{ nb_retards }} en retard</p>
     </div>
-  {% endfor %}
+    <div class="d-flex gap-2">
+        <a href="{{ path('app_guichet') }}" class="btn btn-light btn-sm"><i class="fas fa-search"></i> Guichet</a>
+        {% if is_granted('ROLE_RECEPTION') %}<a href="{{ path('app_commande_new') }}" class="btn btn-light btn-sm"><i class="fas fa-plus"></i> Nouvelle commande</a>{% endif %}
+    </div>
 </div>
 
-<div class="row">
-  <div class="col-xl-6">
-    <div class="card">
-      <div class="card-header"><h4 class="card-title">Encaissements des 7 derniers jours</h4></div>
-      <div class="card-body">
-        {% set max = 1 %}
-        {% for g in graphique %}{% if g.total > max %}{% set max = g.total %}{% endif %}{% endfor %}
-        <div class="d-flex align-items-end justify-content-between" style="height: 150px;">
-          {% for g in graphique %}
-            <div class="text-center flex-fill px-1">
-              <small class="d-block text-muted">{{ g.total ? g.total|money : '' }}</small>
-              <div class="bg-primary rounded-top mx-auto" style="width: 28px; height: {{ (g.total / max * 100)|round }}px; min-height: 2px;" title="{{ g.total|money }}"></div>
-              <small>{{ g.label }}</small>
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-xl-6">
-    <div class="card">
-      <div class="card-header"><h4 class="card-title">Meilleurs clients du mois</h4></div>
-      <div class="card-body">
-        <table class="table mb-0">
-          {% for t in top_clients %}
-            <tr>
-              <td><a href="{{ path('app_clients_show', {id: t.client.id}) }}">{{ t.client.nomComplet }}</a></td>
-              <td>{{ t.nb }} commande(s)</td>
-              <td class="text-end">{{ t.total|money }}</td>
-            </tr>
-          {% else %}
-            <tr><td class="text-muted">Aucune commande ce mois-ci.</td></tr>
-          {% endfor %}
-        </table>
-      </div>
-    </div>
-  </div>
+{# Première rangée : quatre compteurs d'activité #}
+<div class="row g-2">
+    {{ m.carte('Dépôts du jour', depots_jour, 'fa-inbox', 'primary', path('app_commande_index'), null) }}
+    {{ m.carte('En cours', nb_en_cours, 'fa-spinner', 'warning', path('app_commande_index', {filtre: 'encours'}), null) }}
+    {{ m.carte('Prêtes à retirer', nb_pretes, 'fa-box-open', 'info', path('app_commande_index', {statut: 'pret'}), null) }}
+    {{ m.carte('En retard', nb_retards, 'fa-clock', 'danger', path('app_commande_index', {filtre: 'retard'}), null) }}
 </div>
 
-<div class="row">
-  <div class="col-xl-8">
-    <div class="card">
-      <div class="card-header"><h4 class="card-title">Commandes en cours ({{ en_cours|length }})</h4>
-        <a href="{{ path('app_commande_new') }}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Nouvelle commande</a></div>
-      <div class="card-body">
-        <div class="table-responsive">
-          {% include 'commande/_table.html.twig' with {commandes: en_cours} %}
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-xl-4">
-    {% if stock_alerte or reclamations_ouvertes %}
-      <div class="card">
-        <div class="card-header"><h4 class="card-title">Alertes</h4></div>
-        <div class="card-body">
-          {% if reclamations_ouvertes %}
-            <p><i class="fas fa-comment-dots text-danger"></i> <a href="{{ path('app_reclamation_index') }}">{{ reclamations_ouvertes }} réclamation(s) ouverte(s)</a></p>
-          {% endif %}
-          {% for p in stock_alerte %}
-            <p class="mb-1"><i class="fas fa-exclamation-triangle text-warning"></i> Stock bas : <a href="{{ path('app_stock_index') }}">{{ p.nom }}</a> ({{ p.quantite }} {{ p.unite }})</p>
-          {% endfor %}
-        </div>
-      </div>
+{# Deuxième rangée : argent (réception / administrateur) #}
+{% if is_granted('ROLE_RECEPTION') %}
+<div class="row g-2">
+    {{ m.carte("Encaissé aujourd'hui", encaisse_jour|money, 'fa-coins', 'success', path('app_caisse'), null) }}
+    {{ m.carte('Encaissé ce mois', encaisse_mois|money, 'fa-chart-line', 'success', path('app_caisse', {du: 'now'|date('Y-m-01'), au: 'now'|date('Y-m-d')}), null) }}
+    {{ m.carte('Reste à encaisser', impayes.montant|money, 'fa-hand-holding-usd', 'warning', path('app_commande_index', {filtre: 'impayes'}), impayes.nb ~ ' cmd') }}
+    {% if is_granted('ROLE_ADMIN') %}
+        {{ m.carte('Résultat du mois', resultat_mois|money, 'fa-balance-scale', resultat_mois >= 0 ? 'primary' : 'danger', path('app_depense_index'), 'dépenses ' ~ depenses_mois|money) }}
+    {% else %}
+        {{ m.carte('Clients', nb_clients, 'fa-users', 'primary', path('app_clients_index'), null) }}
     {% endif %}
-    <div class="card">
-      <div class="card-body"><p class="mb-1 text-muted">Clients enregistrés</p><h3 class="mb-0">{{ nb_clients }}</h3></div>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header flex-wrap gap-2">
+                <h4 class="card-title"><i class="fas fa-chart-bar text-primary me-2"></i>Commandes par mois</h4>
+                <span class="text-muted small">12 derniers mois</span>
+            </div>
+            <div class="card-body">
+                <div class="graphique"><canvas data-chart="{{ {type: 'bar', data: {labels: mois|map(x => x.label), datasets: [{label: 'Commandes', data: mois|map(x => x.nb)}]}}|json_encode|e('html_attr') }}"></canvas></div>
+            </div>
+        </div>
     </div>
-  </div>
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-header"><h4 class="card-title"><i class="fas fa-chart-pie text-primary me-2"></i>Répartition par statut</h4></div>
+            <div class="card-body">
+                {% set libelles = [] %}{% set valeurs = [] %}
+                {% for cle, label in constant('App\\Entity\\Commande::STATUTS') %}{% set libelles = libelles|merge([label]) %}{% set valeurs = valeurs|merge([par_statut[cle]|default(0)]) %}{% endfor %}
+                <div class="graphique"><canvas data-chart="{{ {type: 'doughnut', data: {labels: libelles, datasets: [{data: valeurs, backgroundColor: ['#9ca3af', '#f5b83d', '#38a9f5', '#00A15D', '#ef4444']}]}, options: {cutoutPercentage: 62}}|json_encode|e('html_attr') }}"></canvas></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header flex-wrap gap-2">
+                <h4 class="card-title"><i class="fas fa-list text-primary me-2"></i>À traiter en priorité</h4>
+                <a href="{{ path('app_commande_index', {filtre: 'encours'}) }}" class="btn btn-light btn-sm">Voir tout</a>
+            </div>
+            <div class="card-body pt-0">
+                <div class="table-responsive">{{ include('commande/_table.html.twig', {commandes: a_traiter, compact: true}) }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        {% if is_granted('ROLE_RECEPTION') %}
+        <div class="card">
+            <div class="card-header"><h4 class="card-title"><i class="fas fa-medal text-primary me-2"></i>Meilleurs clients du mois</h4></div>
+            <div class="card-body pt-0">
+                <table class="table table-hover mb-0">
+                    {% for t in top_clients %}
+                        <tr>
+                            <td><a href="{{ path('app_clients_show', {id: t.client.id}) }}" class="fw-bold">{{ t.client.nomComplet }}</a><br><small>{{ t.nb }} commande(s)</small></td>
+                            <td class="num">{{ t.total|money }}</td>
+                        </tr>
+                    {% else %}
+                        {{ include('partials/_empty_state.html.twig', {colonnes: 2, message: 'Aucune commande ce mois-ci.', icone: 'fa-medal'}, with_context = false) }}
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h4 class="card-title"><i class="fas fa-coins text-primary me-2"></i>Encaissements — 7 jours</h4></div>
+            <div class="card-body">
+                <div class="graphique" style="height: 150px"><canvas data-chart="{{ {type: 'bar', data: {labels: semaine|map(x => x.label), datasets: [{label: 'FCFA', data: semaine|map(x => x.total)}]}}|json_encode|e('html_attr') }}"></canvas></div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
+
+{% block javascripts %}<script src="{{ asset('theme/vendor/chart.js/Chart.bundle.min.js') }}"></script>{% endblock %}

@@ -4,9 +4,11 @@ namespace App\Entity;
 
 use App\Repository\ServiceRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ServiceRepository::class)]
+#[UniqueEntity(fields: ['code'], message: 'Ce code est déjà utilisé par un autre service.')]
 class Service
 {
     #[ORM\Id]

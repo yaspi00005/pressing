@@ -1,0 +1,9 @@
+{# Pastille de couleur d'un statut.
+   Utilisation : {{ include('partials/_badge.html.twig', {commande: c}, with_context = false) }}   (statut de la commande)
+                 {{ include('partials/_badge.html.twig', {paiement: c}, with_context = false) }}   (Payé / Partiel / Non payé) #}
+{% if commande is defined %}
+    <span class="badge bg-{{ commande.statutBadge }}">{{ commande.statutLabel }}</span>
+{% elseif paiement is defined %}
+    {% set sp = paiement.statutPaiement %}
+    <span class="badge bg-{{ {paye: 'success', partiel: 'warning', impaye: 'danger', annule: 'secondary'}[sp] }}">{{ {paye: 'Payé', partiel: 'Partiel', impaye: 'Non payé', annule: '—'}[sp] }}</span>
+{% endif %}

@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Guichet{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-xl-8">
+        <div class="card carte-action">
+            <div class="card-header"><h4 class="card-title"><i class="fas fa-search text-primary me-2"></i>Retrouver une commande</h4></div>
+            <div class="card-body">
+                <form method="get" class="d-flex gap-2">
+                    <input type="search" name="q" value="{{ q }}" class="form-control form-control-lg" placeholder="N° de ticket (saisi ou scanné), nom ou téléphone du client" autofocus autocomplete="off" aria-label="Recherche">
+                    <button class="btn btn-primary"><i class="fas fa-search"></i> Chercher</button>
+                </form>
+                <p class="small text-muted mt-2 mb-0">Un n° de ticket exact ouvre directement la fiche de la commande.</p>
+            </div>
+        </div>
+
+        {% if q %}
+            <div class="card">
+                <div class="card-header"><h4 class="card-title">{{ resultats|length }} résultat{{ resultats|length > 1 ? 's' }}</h4></div>
+                <div class="card-body pt-0"><div class="table-responsive">{{ include('commande/_table.html.twig', {commandes: resultats, compact: true}) }}</div></div>
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-header"><h4 class="card-title"><i class="fas fa-box-open text-primary me-2"></i>Prêtes à retirer</h4></div>
+                <div class="card-body pt-0"><div class="table-responsive">{{ include('commande/_table.html.twig', {commandes: a_retirer, compact: true}) }}</div></div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

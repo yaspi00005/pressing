@@ -1,0 +1,29 @@
+{# Pages précédentes/suivantes + choix du nombre de lignes (10 / 25 / 50 / 100 / 500). Paramètre : pagination #}
+{% set route = app.request.attributes.get('_route') %}
+{% set params = app.request.query.all|merge(app.request.attributes.get('_route_params')|default({})) %}
+{% set pages = pagination.pages %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pagination-barre">
+    <div class="text-muted small">
+        {% if pagination.total %}{{ pagination.debut }} à {{ pagination.fin }} sur {{ pagination.total }}{% else %}Aucune ligne{% endif %}
+        <span class="ms-2">· Lignes :</span>
+        {% for n in constant('App\\Service\\Pagination::LIGNES_PAR_PAGE') %}
+            <a href="{{ path(route, params|merge({lignes: n, page: 1})) }}" class="lignes-choix {{ pagination.parPage == n ? 'actif' }}">{{ n }}</a>
+        {% endfor %}
+    </div>
+    {% if pages > 1 %}
+        <nav aria-label="Pages">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item {{ pagination.page <= 1 ? 'disabled' }}"><a class="page-link" href="{{ path(route, params|merge({page: pagination.page - 1})) }}" aria-label="Précédent">&lsaquo;</a></li>
+                {% set affiches = [] %}
+                {% for p in 1..pages %}
+                    {% if p == 1 or p == pages or (p >= pagination.page - 2 and p <= pagination.page + 2) %}
+                        {% if affiches|length and (affiches|last) < p - 1 %}<li class="page-item disabled"><span class="page-link">…</span></li>{% endif %}
+                        <li class="page-item {{ p == pagination.page ? 'active' }}"><a class="page-link" href="{{ path(route, params|merge({page: p})) }}">{{ p }}</a></li>
+                        {% set affiches = affiches|merge([p]) %}
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {{ pagination.page >= pages ? 'disabled' }}"><a class="page-link" href="{{ path(route, params|merge({page: pagination.page + 1})) }}" aria-label="Suivant">&rsaquo;</a></li>
+            </ul>
+        </nav>
+    {% endif %}
+</div>

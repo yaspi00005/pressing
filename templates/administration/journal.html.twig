@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Journal d'activité{% endblock %}
+{% set fil = [{label: 'Administration', url: path('app_admin_users')}] %}
+
+{% block body %}
+<div class="card">
+    <div class="card-header"><h4 class="card-title">{{ pagination.total }} événement{{ pagination.total > 1 ? 's' }}</h4></div>
+    <div class="card-body">
+        <form method="get" class="row g-2 filtres-liste">
+            <div class="col-md-4"><input type="search" name="q" value="{{ filtres.q }}" class="form-control" placeholder="Rechercher dans le journal…"></div>
+            <div class="col-md-3">
+                <select name="cible" class="form-select js-auto-submit">
+                    <option value="">Tous les objets</option>
+                    {% for c, l in {commande: 'Commandes', client: 'Clients', user: 'Utilisateurs', depense: 'Dépenses'} %}<option value="{{ c }}" {{ filtres.cible == c ? 'selected' }}>{{ l }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="user" class="form-select js-auto-submit"><option value="">Toutes les personnes</option>{% for u in users %}<option value="{{ u.id }}" {{ filtres.user == u.id ? 'selected' }}>{{ u.nomComplet }}</option>{% endfor %}</select>
+            </div>
+            <div class="col-md-2 d-flex gap-1"><button class="btn btn-primary btn-sm flex-fill"><i class="fas fa-filter"></i></button><a href="{{ path('app_admin_journal') }}" class="btn btn-light btn-sm"><i class="fas fa-times"></i></a></div>
+        </form>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead><tr><th>Date</th><th>Personne</th><th>Action</th><th>Détail</th></tr></thead>
+                <tbody>
+                    {% for e in pagination.items %}
+                        <tr>
+                            <td class="text-nowrap">{{ e.createdAt|date('d/m/Y H:i') }}</td>
+                            <td>{{ e.user ? e.user.nomComplet : 'Système' }}</td>
+                            <td><span class="badge bg-secondary">{{ e.action }}</span></td>
+                            <td>
+                                {% if e.cible == 'commande' and e.cibleId %}<a href="{{ path('app_commande_show', {id: e.cibleId}) }}">{{ e.libelle }}</a>
+                                {% elseif e.cible == 'client' and e.cibleId %}<a href="{{ path('app_clients_show', {id: e.cibleId}) }}">{{ e.libelle }}</a>
+                                {% else %}{{ e.libelle }}{% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        {{ include('partials/_empty_state.html.twig', {colonnes: 4, message: 'Aucun événement.', icone: 'fa-history'}, with_context = false) }}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {{ include('partials/_pagination.html.twig') }}
+    </div>
+</div>
+{% endblock %}

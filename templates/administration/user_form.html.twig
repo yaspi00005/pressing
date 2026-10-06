@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ titre }}{% endblock %}
+{% set fil = [{label: 'Administration', url: path('app_admin_users')}, {label: 'Utilisateurs', url: path('app_admin_users')}] %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-xl-7">
+        <div class="card">
+            <div class="card-header"><h4 class="card-title"><i class="fas fa-user-cog text-primary me-2"></i>{{ titre }}</h4></div>
+            <div class="card-body">
+                {{ form_start(form) }}
+                    <div class="row">
+                        <div class="col-md-6">{{ form_row(form.prenom) }}</div>
+                        <div class="col-md-6">{{ form_row(form.nom) }}</div>
+                        <div class="col-md-6">{{ form_row(form.username) }}</div>
+                        <div class="col-md-6">{{ form_row(form.telephone) }}</div>
+                        <div class="col-md-6">{{ form_row(form.role) }}</div>
+                        <div class="col-md-6">{{ form_row(form.plainPassword) }}</div>
+                    </div>
+                    {{ form_rest(form) }}
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ path('app_admin_users') }}" class="btn btn-light">Annuler</a>
+                        <button class="btn btn-primary">Enregistrer</button>
+                    </div>
+                {{ form_end(form, {render_rest: false}) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

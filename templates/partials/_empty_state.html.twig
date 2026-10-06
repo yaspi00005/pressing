@@ -1,0 +1,5 @@
+{# Ligne vide d'une liste : <tr> si « colonnes » est donné, bloc sinon #}
+{% set contenu %}
+    <div class="empty-state"><i class="fas {{ icone|default('fa-inbox') }}"></i><p>{{ message|default('Aucun résultat.') }}</p></div>
+{% endset %}
+{% if colonnes is defined %}<tr><td colspan="{{ colonnes }}">{{ contenu }}</td></tr>{% else %}{{ contenu }}{% endif %}

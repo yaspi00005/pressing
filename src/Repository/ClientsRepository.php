@@ -45,4 +45,43 @@ class ClientsRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+    public function filtre(?string $q, ?string $genre): \Doctrine\ORM\QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('c')->orderBy('c.nom', 'ASC')->addOrderBy('c.prenom', 'ASC');
+        if ($q) {
+            $qb->andWhere('c.nom LIKE :q OR c.prenom LIKE :q OR c.telephones LIKE :q OR c.email LIKE :q OR c.adresses LIKE :q')->setParameter('q', '%'.$q.'%');
+        }
+        if ($genre) {
+            $qb->andWhere('c.genres = :g')->setParameter('g', $genre);
+        }
+
+        return $qb;
+    }
+
+    /**
+     * Nombre de commandes et solde dû par client.
+     *
+     * @param int[] $ids
+     *
+     * @return array<int, array{nb: int, solde: int}>
+     */
+    public function statistiques(array $ids): array
+    {
+        if (!$ids) {
+            return [];
+        }
+        $rows = $this->getEntityManager()->createQueryBuilder()
+            ->select('IDENTITY(c.client) AS cid, COUNT(c.id) AS nb, COALESCE(SUM(CASE WHEN c.statut != :a THEN c.total - c.montantPaye ELSE 0 END), 0) AS solde')
+            ->from(\App\Entity\Commande::class, 'c')
+            ->andWhere('c.client IN (:ids)')->setParameter('ids', $ids)->setParameter('a', \App\Entity\Commande::STATUT_ANNULE)
+            ->groupBy('c.client')->getQuery()->getArrayResult();
+
+        $par = [];
+        foreach ($rows as $r) {
+            $par[(int) $r['cid']] = ['nb' => (int) $r['nb'], 'solde' => (int) $r['solde']];
+        }
+
+        return $par;
+    }
 }

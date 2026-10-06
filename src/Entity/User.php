@@ -9,9 +9,15 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[UniqueEntity(fields: ['username'], message: 'There is already an account with this username')]
+#[UniqueEntity(fields: ['username'], message: "Ce nom d'utilisateur existe déjà.")]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    public const ROLES = [
+        'ROLE_ADMIN' => 'Administrateur',
+        'ROLE_RECEPTION' => 'Réception / caisse',
+        'ROLE_ATELIER' => 'Atelier',
+    ];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -37,6 +43,38 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     private ?int $telephone = null;
+
+    #[ORM\Column(options: ['default' => true])]
+    private bool $actif = true;
+
+    public function isActif(): bool
+    {
+        return $this->actif;
+    }
+
+    public function setActif(bool $actif): static
+    {
+        $this->actif = $actif;
+
+        return $this;
+    }
+
+    public function getNomComplet(): string
+    {
+        return trim($this->prenom.' '.$this->nom) ?: (string) $this->username;
+    }
+
+    /** Rôle principal (le plus élevé) pour l'affichage. */
+    public function getRoleLabel(): string
+    {
+        foreach (self::ROLES as $role => $label) {
+            if (\in_array($role, $this->roles, true)) {
+                return $label;
+            }
+        }
+
+        return 'Utilisateur';
+    }
 
     public function getId(): ?int
     {

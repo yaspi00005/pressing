@@ -1,7 +1,7 @@
 twig:
     default_path: '%kernel.project_dir%/templates'
+    form_themes: ['form/theme.html.twig']
     globals:
-        domaine: "https://127.0.0.1:8000"
         app_devise: '%app.devise%'
         pressing:
             nom: '%app.pressing.nom%'

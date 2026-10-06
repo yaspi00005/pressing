@@ -1,0 +1,8 @@
+{# Fil d'Ariane : Accueil › (pages parentes éventuelles : variable « fil » de la page) › titre #}
+<nav aria-label="Fil d'Ariane" class="fil-ariane d-none d-sm-block">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}">Accueil</a></li>
+        {% for e in fil|default([]) %}<li class="breadcrumb-item"><a href="{{ e.url }}">{{ e.label }}</a></li>{% endfor %}
+        <li class="breadcrumb-item active" aria-current="page">{{ titre }}</li>
+    </ol>
+</nav>

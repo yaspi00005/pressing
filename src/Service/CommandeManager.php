@@ -13,6 +13,7 @@ class CommandeManager
     public function __construct(
         private EntityManagerInterface $em,
         private NumeroCommandeGenerator $numeros,
+        private Journalisation $journal,
         #[Autowire('%app.majoration_express%')] private int $majorationExpress,
         #[Autowire('%app.points_par_tranche%')] private int $pointsParTranche,
     ) {
@@ -35,7 +36,12 @@ class CommandeManager
             $this->ajouterPaiement($commande, $acompte, $modeAcompte, null, $user, false);
         }
 
+        $nouvelle = null === $commande->getId();
+        $commande->recalculer();
         $this->em->persist($commande);
+        $this->em->flush();
+
+        $this->journal->noter($nouvelle ? 'creation' : 'modification', ($nouvelle ? 'Commande créée : ' : 'Commande modifiée : ').$commande->getNumero().' ('.$commande->getTotal().' '.'FCFA)', 'commande', $commande->getId(), $user);
         $this->em->flush();
     }
 
@@ -53,8 +59,10 @@ class CommandeManager
             ->setDatePaiement(new \DateTimeImmutable())
             ->setCreatedBy($user);
         $commande->addPaiement($paiement);
+        $commande->recalculer();
         $this->em->persist($paiement);
         if ($flush) {
+            $this->journal->noter('paiement', sprintf('Paiement de %d FCFA (%s) sur %s', $montant, $paiement->getModeLabel(), $commande->getNumero()), 'commande', $commande->getId(), $user);
             $this->em->flush();
         }
 
@@ -67,6 +75,7 @@ class CommandeManager
         if (!isset(Commande::STATUTS[$statut])) {
             throw new \InvalidArgumentException('Statut inconnu.');
         }
+        $ancien = $commande->getStatutLabel();
         $commande->setStatut($statut);
 
         if (Commande::STATUT_LIVRE === $statut) {
@@ -77,6 +86,7 @@ class CommandeManager
                 $commande->setPointsCredites(true);
             }
         }
+        $this->journal->noter('statut', sprintf('%s : %s → %s', $commande->getNumero(), $ancien, $commande->getStatutLabel()), 'commande', $commande->getId());
         $this->em->flush();
     }
 }

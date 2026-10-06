@@ -24,7 +24,10 @@ class AppExtension extends AbstractExtension
 
     public function getFunctions(): array
     {
-        return [new TwigFunction('whatsapp_link', $this->whatsappLink(...))];
+        return [
+            new TwigFunction('whatsapp_link', $this->whatsappLink(...)),
+            new TwigFunction('alertes', [AlertesRuntime::class, 'alertes']),
+        ];
     }
 
     public function money(int|float|null $montant): string

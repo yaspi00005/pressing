@@ -1,9 +1,8 @@
 {% extends 'base.html.twig' %}
 
+{% set erreurs_modal = false %}
 {% set titre = categorie ? categorie.noms : 'Tous les articles' %}
 {% block title %}{{ titre }}{% endblock %}
-{% block page_title %}{{ titre }}{% endblock %}
-{% block stylesheets %}{{ include('partials/_datatable_css.html.twig') }}{% endblock %}
 
 {% block body %}
 <div class="card">
@@ -17,14 +16,14 @@
   </div>
   <div class="card-body">
     <div class="table-responsive">
-      <table class="table table-striped datatable" style="min-width: 600px">
+      <table class="table table-hover">
         <thead>
           <tr>
             <th>Article</th>
             {% if not categorie %}<th>Catégorie</th>{% endif %}
             <th>Code</th>
-            <th class="text-end">Prix de base</th>
-            <th class="text-end no-sort">Actions</th>
+            <th class="num">Prix de base</th>
+            <th class="text-end">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -33,10 +32,10 @@
               <td><strong>{{ a.noms }}</strong></td>
               {% if not categorie %}<td><a href="{{ path('app_articles_sous_categorie_show', {url: a.categorie.url}) }}">{{ a.categorie.noms }}</a></td>{% endif %}
               <td>{{ a.codeArticles ?: '—' }}</td>
-              <td class="text-end" data-order="{{ a.prix }}">{{ a.prix|money }}</td>
+              <td class="num">{{ a.prix|money }}</td>
               <td class="text-end text-nowrap">
                 <a href="{{ path('app_articles_sous_categorie_edit', {url: a.url}) }}" class="btn btn-sm btn-outline-secondary" title="Modifier"><i class="fas fa-pencil-alt"></i></a>
-                <form method="post" action="{{ path('app_articles_sous_categorie_delete', {url: a.url}) }}" class="d-inline" onsubmit="return confirm('Supprimer l\'article « {{ a.noms|e('js') }} » ?');">
+                <form method="post" action="{{ path('app_articles_sous_categorie_delete', {url: a.url}) }}" class="d-inline" data-confirm="L'article « {{ a.noms }} » sera supprimé." data-confirm-titre="Supprimer l'article ?" data-confirm-type="danger" data-confirm-bouton="Oui, supprimer">
                   <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ a.id) }}">
                   <button class="btn btn-sm btn-outline-danger" title="Supprimer"><i class="fas fa-trash"></i></button>
                 </form>
@@ -50,7 +49,7 @@
   </div>
 </div>
 
-<div class="modal fade" id="article" tabindex="-1" aria-labelledby="articleLabel" aria-hidden="true">
+<div class="modal fade" id="article" {{ ouvrir_modal|default(false) ? 'data-ouvrir-modal' }} tabindex="-1" aria-labelledby="articleLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -74,7 +73,3 @@
 </div>
 {% endblock %}
 
-{% block javascripts %}
-{{ include('partials/_datatable_js.html.twig') }}
-{% if ouvrir_modal|default(false) %}<script>jQuery(function () { new bootstrap.Modal(document.getElementById('article')).show(); });</script>{% endif %}
-{% endblock %}

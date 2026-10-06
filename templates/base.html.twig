@@ -4,62 +4,80 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Pressing{% endblock %}</title>
-    <link rel="shortcut icon" type="image/png" href="{{ asset('workload/images/favicon.png') }}">
-    <link rel="stylesheet" href="{{ asset('workload/vendor/jquery-nice-select/css/nice-select.css') }}">
+    <meta name="theme-color" content="#00A15D">
+    <title>{% block title %}Pressing{% endblock %} · {{ pressing.nom }}</title>
+    <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('theme/images/favicon.png') }}">
+    <link rel="stylesheet" href="{{ asset('theme/vendor/select2/css/select2.min.css') }}">
     {% block stylesheets %}{% endblock %}
-    <link rel="stylesheet" href="{{ asset('workload/css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('workload/css/pressing.css') }}">
+    <link rel="stylesheet" href="{{ asset('theme/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/pressing.css') }}">
 </head>
 <body>
     <div id="preloader">
-        <div class="lds-ripple">
-            <div></div>
-            <div></div>
-        </div>
+        <div class="lds-ripple"><div></div><div></div></div>
     </div>
 
     <div id="main-wrapper">
-        {# Nav header #}
+        {# Logo + bouton du menu #}
         <div class="nav-header">
-            <a href="{{ path('app_dashboard') }}" class="brand-logo">
-                <span class="logo-abbr d-inline-flex align-items-center justify-content-center rounded-circle bg-primary text-white" style="width:50px;height:50px;font-size:22px"><i class="fas fa-tshirt"></i></span>
-                <span class="brand-title fs-3 fw-bold text-primary ms-2">Pressing</span>
-            </a>
+            {{ include('partials/_logo.html.twig') }}
             <div class="nav-control">
-                <div class="hamburger">
-                    <span class="line"></span><span class="line"></span><span class="line"></span>
-                </div>
+                <div class="hamburger"><span class="line"></span><span class="line"></span><span class="line"></span></div>
             </div>
         </div>
 
-        {# Header #}
+        {# En-tête : titre · recherche · nouvelle commande · notifications · profil #}
+        {% set al = app.user ? alertes() : null %}
         <div class="header border-bottom">
             <div class="header-content">
                 <nav class="navbar navbar-expand">
                     <div class="collapse navbar-collapse justify-content-between">
                         <div class="header-left">
-                            <div class="dashboard_bar">{% block page_title %}Pressing{% endblock %}</div>
+                            <div class="dashboard_bar">{% block page_title %}{{ block('title') }}{% endblock %}</div>
                         </div>
-                        <ul class="navbar-nav header-right">
+                        <ul class="navbar-nav header-right align-items-center gap-2">
+                            <li class="nav-item d-none d-md-block">
+                                <form action="{{ path('app_guichet') }}" method="get" class="recherche-globale" role="search">
+                                    <i class="fas fa-search"></i>
+                                    <input type="search" name="q" class="form-control" placeholder="N° de ticket, client, tél." autocomplete="off" aria-label="Recherche">
+                                </form>
+                            </li>
+                            {% if is_granted('ROLE_RECEPTION') %}
+                                <li class="nav-item d-none d-sm-block">
+                                    <a href="{{ path('app_commande_new') }}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Nouvelle commande</a>
+                                </li>
+                            {% endif %}
+                            {% if al %}
+                                <li class="nav-item dropdown">
+                                    <a class="btn btn-outline-primary btn-sm btn-cloche position-relative" href="#" data-bs-toggle="dropdown" aria-label="Notifications"><i class="far fa-bell"></i>{% if al.total %}<span class="badge-cloche">{{ al.total }}</span>{% endif %}</a>
+                                    <div class="dropdown-menu dropdown-menu-end p-2" style="min-width: 250px">
+                                        <div class="px-2 pb-1 text-muted small fw-bold text-uppercase">À surveiller</div>
+                                        <a class="dropdown-item d-flex justify-content-between" href="{{ path('app_commande_index', {filtre: 'retard'}) }}"><span><i class="fas fa-clock text-danger me-2"></i>Commandes en retard</span><strong>{{ al.retards }}</strong></a>
+                                        <a class="dropdown-item d-flex justify-content-between" href="{{ path('app_commande_index', {statut: 'pret'}) }}"><span><i class="fas fa-box-open text-info me-2"></i>Prêtes à retirer</span><strong>{{ al.pretes }}</strong></a>
+                                        {% if is_granted('ROLE_RECEPTION') %}
+                                            <a class="dropdown-item d-flex justify-content-between" href="{{ path('app_commande_index', {filtre: 'impayes'}) }}"><span><i class="fas fa-hand-holding-usd text-warning me-2"></i>Commandes impayées</span><strong>{{ al.impayes }}</strong></a>
+                                            <a class="dropdown-item d-flex justify-content-between" href="{{ path('app_reclamation_index') }}"><span><i class="fas fa-comment-dots text-danger me-2"></i>Réclamations ouvertes</span><strong>{{ al.reclamations }}</strong></a>
+                                        {% endif %}
+                                        {% if is_granted('ROLE_ATELIER') %}
+                                            <a class="dropdown-item d-flex justify-content-between" href="{{ path('app_stock_index') }}"><span><i class="fas fa-exclamation-triangle text-warning me-2"></i>Stock bas</span><strong>{{ al.stock }}</strong></a>
+                                        {% endif %}
+                                    </div>
+                                </li>
+                            {% endif %}
                             <li class="nav-item dropdown header-profile">
-                                <a class="nav-link" href="javascript:void(0);" role="button" data-bs-toggle="dropdown">
-                                    <img src="{{ asset('workload/images/user.jpg') }}" width="20" alt="">
-                                    <div class="header-info ms-3">
-                                        <span class="fs-18 font-w500 mb-2">{{ app.user ? app.user.userIdentifier : 'Invité' }}</span>
+                                <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown">
+                                    <span class="avatar-initiales">{{ app.user ? (app.user.prenom|first ~ app.user.nom|first)|upper : '?' }}</span>
+                                    <div class="header-info ms-2 d-none d-md-block">
+                                        <span>{{ app.user ? app.user.nomComplet : 'Invité' }}</span>
+                                        <small class="d-block text-muted">{{ app.user ? app.user.roleLabel : '' }}</small>
                                     </div>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     {% if app.user %}
-                                        <a href="{{ path('app_logout') }}" class="dropdown-item ai-icon">
-                                            <i class="fas fa-sign-out-alt text-danger"></i>
-                                            <span class="ms-2">Déconnexion</span>
-                                        </a>
+                                        <a href="{{ path('app_logout') }}" class="dropdown-item"><i class="fas fa-sign-out-alt text-danger me-2"></i> Déconnexion</a>
                                     {% else %}
-                                        <a href="{{ path('app_login') }}" class="dropdown-item ai-icon">
-                                            <i class="fas fa-sign-in-alt text-primary"></i>
-                                            <span class="ms-2">Connexion</span>
-                                        </a>
+                                        <a href="{{ path('app_login') }}" class="dropdown-item"><i class="fas fa-sign-in-alt text-primary me-2"></i> Connexion</a>
                                     {% endif %}
                                 </div>
                             </li>
@@ -69,73 +87,37 @@
             </div>
         </div>
 
-        {# Sidebar #}
+        {# Menu latéral (entrées selon le rôle) #}
         <div class="dlabnav">
             <div class="dlabnav-scroll">
-                <ul class="metismenu" id="menu">
-                    <li><a href="{{ path('app_dashboard') }}" aria-expanded="false"><i class="fas fa-home"></i><span class="nav-text">Tableau de bord</span></a></li>
-                    <li>
-                        <a class="has-arrow" href="javascript:void(0);" aria-expanded="false"><i class="fas fa-receipt"></i><span class="nav-text">Commandes</span></a>
-                        <ul aria-expanded="false">
-                            <li><a href="{{ path('app_commande_new') }}">Nouvelle commande</a></li>
-                            <li><a href="{{ path('app_commande_index') }}">Toutes les commandes</a></li>
-                            <li><a href="{{ path('app_commande_index', {filtre: 'retard'}) }}">En retard</a></li>
-                            <li><a href="{{ path('app_commande_index', {filtre: 'impayes'}) }}">Impayées</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a class="has-arrow" href="javascript:void(0);" aria-expanded="false"><i class="fas fa-user"></i><span class="nav-text">Clients</span></a>
-                        <ul aria-expanded="false">
-                            <li><a href="{{ path('app_clients_new') }}">Nouveau client</a></li>
-                            <li><a href="{{ path('app_clients_index') }}">Liste des clients</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a class="has-arrow" href="javascript:void(0);" aria-expanded="false"><i class="fas fa-tshirt"></i><span class="nav-text">Catalogue</span></a>
-                        <ul aria-expanded="false">
-                            <li><a href="{{ path('app_articles_categories_index') }}">Articles</a></li>
-                            <li><a href="{{ path('app_tarif_index') }}">Services &amp; tarifs</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a class="has-arrow" href="javascript:void(0);" aria-expanded="false"><i class="fas fa-cash-register"></i><span class="nav-text">Caisse</span></a>
-                        <ul aria-expanded="false">
-                            <li><a href="{{ path('app_caisse') }}">Rapport du jour</a></li>
-                            <li><a href="{{ path('app_depense_index') }}">Dépenses</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="{{ path('app_stock_index') }}" aria-expanded="false"><i class="fas fa-boxes"></i><span class="nav-text">Stock produits</span></a></li>
-                    <li><a href="{{ path('app_reclamation_index') }}" aria-expanded="false"><i class="fas fa-comment-dots"></i><span class="nav-text">Réclamations</span></a></li>
-                </ul>
+                {{ include('partials/_menu.html.twig') }}
             </div>
         </div>
 
-        {# Content #}
+        {# Contenu : fil d'Ariane · messages · {% block body %} #}
         <div class="content-body">
             <div class="container-fluid">
-                {% for type, messages in app.flashes %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
-                        </div>
-                    {% endfor %}
-                {% endfor %}
+                {% block breadcrumb %}{{ include('partials/_fil_ariane.html.twig', {titre: block('title'), fil: fil|default([])}) }}{% endblock %}
+                {{ include('partials/_flash.html.twig') }}
                 {% block body %}{% endblock %}
             </div>
         </div>
 
         <div class="footer">
-            <div class="copyright">
-                <p>Pressing &copy; {{ 'now'|date('Y') }}</p>
-            </div>
+            <div class="copyright"><p>{{ pressing.nom }} &copy; {{ 'now'|date('Y') }}</p></div>
         </div>
     </div>
 
-    <script src="{{ asset('workload/vendor/global/global.min.js') }}"></script>
-    <script src="{{ asset('workload/vendor/jquery-nice-select/js/jquery.nice-select.min.js') }}"></script>
+    {{ include('partials/_modal_confirmation.html.twig') }}
+    {% if (erreurs_modal is not defined or erreurs_modal) and form is defined and form is not null and form.vars is defined and form.vars.submitted and not form.vars.valid %}
+        {{ include('partials/_modal_erreurs.html.twig') }}
+    {% endif %}
+
+    <script src="{{ asset('theme/vendor/global/global.min.js') }}"></script>
+    <script src="{{ asset('theme/vendor/select2/js/select2.full.min.js') }}"></script>
     {% block javascripts %}{% endblock %}
-    <script src="{{ asset('workload/js/custom.min.js') }}"></script>
-    <script src="{{ asset('workload/js/dlabnav-init.js') }}"></script>
+    <script src="{{ asset('theme/js/custom.min.js') }}"></script>
+    <script src="{{ asset('theme/js/dlabnav-init.js') }}"></script>
+    <script src="{{ asset('js/pressing.js') }}"></script>
 </body>
 </html>

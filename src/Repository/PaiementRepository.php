@@ -61,4 +61,50 @@ class PaiementRepository extends ServiceEntityRepository
 
         return $par;
     }
+
+    /** @param array{du?: ?\DateTimeImmutable, au?: ?\DateTimeImmutable, mode?: ?string, user?: ?int, q?: ?string} $f */
+    public function filtre(array $f): \Doctrine\ORM\QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->addSelect('c', 'cl', 'u')
+            ->join('p.commande', 'c')->join('c.client', 'cl')->leftJoin('p.createdBy', 'u')
+            ->orderBy('p.datePaiement', 'DESC')->addOrderBy('p.id', 'DESC');
+        if (!empty($f['du'])) {
+            $qb->andWhere('p.datePaiement >= :du')->setParameter('du', $f['du']->setTime(0, 0));
+        }
+        if (!empty($f['au'])) {
+            $qb->andWhere('p.datePaiement < :au')->setParameter('au', $f['au']->setTime(0, 0)->modify('+1 day'));
+        }
+        if (!empty($f['mode']) && isset(\App\Entity\Paiement::MODES[$f['mode']])) {
+            $qb->andWhere('p.mode = :m')->setParameter('m', $f['mode']);
+        }
+        if (!empty($f['user'])) {
+            $qb->andWhere('p.createdBy = :u')->setParameter('u', $f['user']);
+        }
+        if (!empty($f['q'])) {
+            $qb->andWhere('c.numero LIKE :q OR cl.nom LIKE :q OR cl.prenom LIKE :q OR p.reference LIKE :q')->setParameter('q', '%'.$f['q'].'%');
+        }
+
+        return $qb;
+    }
+
+    /** @return array{total: int, nb: int, parMode: array<string,int>, parCaissier: array<string,int>} */
+    public function resume(array $f): array
+    {
+        $parMode = [];
+        $parCaissier = [];
+        $total = 0;
+        $nb = 0;
+        foreach ($this->filtre($f)->getQuery()->getResult() as $p) {
+            $total += $p->getMontant();
+            ++$nb;
+            $parMode[$p->getMode()] = ($parMode[$p->getMode()] ?? 0) + $p->getMontant();
+            $nom = $p->getCreatedBy()?->getNomComplet() ?? '—';
+            $parCaissier[$nom] = ($parCaissier[$nom] ?? 0) + $p->getMontant();
+        }
+        arsort($parMode);
+        arsort($parCaissier);
+
+        return ['total' => $total, 'nb' => $nb, 'parMode' => $parMode, 'parCaissier' => $parCaissier];
+    }
 }

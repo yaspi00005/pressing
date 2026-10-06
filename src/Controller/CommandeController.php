@@ -9,7 +9,10 @@ use App\Form\CommandeType;
 use App\Repository\ArticlesSousCategorieRepository;
 use App\Repository\ClientsRepository;
 use App\Repository\CommandeRepository;
+use App\Repository\JournalRepository;
 use App\Repository\TarifRepository;
+use App\Service\ExportCsv;
+use App\Service\Paginateur;
 use App\Service\CommandeManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,6 +20,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/commandes')]
 class CommandeController extends AbstractController
@@ -32,26 +36,32 @@ class CommandeController extends AbstractController
     }
 
     #[Route('/', name: 'app_commande_index', methods: ['GET'])]
-    public function index(Request $request, CommandeRepository $repo): Response
+    public function index(Request $request, CommandeRepository $repo, Paginateur $paginateur): Response
     {
-        $statut = $request->query->get('statut');
-        $filtre = $request->query->get('filtre');
-        $commandes = $repo->rechercher(
-            trim((string) $request->query->get('q')),
-            $statut,
-            'retard' === $filtre,
-            'impayes' === $filtre,
-        );
+        $filtres = $this->filtresDepuisRequete($request);
 
         return $this->render('commande/index.html.twig', [
-            'commandes' => $commandes,
+            'pagination' => $paginateur->paginer($repo->filtre($filtres), $request),
+            'totaux' => $repo->totaux($filtres),
             'compteurs' => $repo->compterParStatut(),
-            'statut' => $statut,
-            'filtre' => $filtre,
-            'q' => $request->query->get('q'),
+            'filtres' => $request->query->all() + ['q' => '', 'statut' => '', 'filtre' => '', 'du' => '', 'au' => '', 'livraison' => ''],
         ]);
     }
 
+    #[Route('/export', name: 'app_commande_export', methods: ['GET'])]
+    public function export(Request $request, CommandeRepository $repo, ExportCsv $csv): Response
+    {
+        $commandes = $repo->filtre($this->filtresDepuisRequete($request))->setMaxResults(10000)->getQuery()->getResult();
+        $lignes = (function () use ($commandes) {
+            foreach ($commandes as $c) {
+                yield [$c->getNumero(), $c->getDateDepot(), $c->getClient()->getNomComplet(), $c->getClient()->getTelephones(), $c->getDateRetraitPrevue(), $c->getStatutLabel(), $c->isUrgent() ? 'Oui' : 'Non', $c->getNombrePieces(), $c->getTotal(), $c->getTotalPaye(), $c->getReste()];
+            }
+        })();
+
+        return $csv->repondre('commandes', ['N°', 'Déposée le', 'Client', 'Téléphone', 'Retrait prévu', 'Statut', 'Express', 'Pièces', 'Total', 'Payé', 'Reste'], $lignes);
+    }
+
+    #[IsGranted('ROLE_RECEPTION')]
     #[Route('/new', name: 'app_commande_new', methods: ['GET', 'POST'])]
     public function new(Request $request, ClientsRepository $clients): Response
     {
@@ -78,6 +88,7 @@ class CommandeController extends AbstractController
         return $this->render('commande/form.html.twig', $this->formVars($form, $commande, 'Nouvelle commande'), new Response(status: $form->isSubmitted() ? 422 : 200));
     }
 
+    #[IsGranted('ROLE_RECEPTION')]
     #[Route('/{id}/edit', name: 'app_commande_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function edit(Request $request, Commande $commande, EntityManagerInterface $em): Response
     {
@@ -101,10 +112,11 @@ class CommandeController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_commande_show', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function show(Commande $commande): Response
+    public function show(Commande $commande, JournalRepository $journal): Response
     {
         return $this->render('commande/show.html.twig', [
             'commande' => $commande,
+            'journal' => $journal->pourCible('commande', $commande->getId()),
             'modes' => Paiement::MODES,
         ]);
     }
@@ -126,6 +138,9 @@ class CommandeController extends AbstractController
         if (!isset(Commande::STATUTS[$statut])) {
             throw $this->createNotFoundException();
         }
+        if (\in_array($statut, [Commande::STATUT_LIVRE, Commande::STATUT_ANNULE], true)) {
+            $this->denyAccessUnlessGranted('ROLE_RECEPTION');
+        }
         if ($commande->isTerminee()) {
             $this->addFlash('warning', 'Cette commande est déjà clôturée.');
         } elseif (Commande::STATUT_LIVRE === $statut && !$commande->isSolde() && !$request->request->getBoolean('forcer')) {
@@ -138,6 +153,7 @@ class CommandeController extends AbstractController
         return $this->redirectToRoute('app_commande_show', ['id' => $commande->getId()], Response::HTTP_SEE_OTHER);
     }
 
+    #[IsGranted('ROLE_RECEPTION')]
     #[Route('/{id}/paiement', name: 'app_commande_paiement', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function paiement(Request $request, Commande $commande): Response
     {
@@ -179,6 +195,21 @@ class CommandeController extends AbstractController
             'tarifs' => $prix,
             'prixBase' => $base,
             'majoration' => $this->majorationExpress,
+        ];
+    }
+
+    /** @return array<string,mixed> */
+    private function filtresDepuisRequete(Request $request): array
+    {
+        $date = static fn (string $cle) => ($d = \DateTimeImmutable::createFromFormat('!Y-m-d', (string) $request->query->get($cle))) ? $d : null;
+
+        return [
+            'q' => trim((string) $request->query->get('q')) ?: null,
+            'statut' => (string) $request->query->get('statut') ?: null,
+            'filtre' => (string) $request->query->get('filtre') ?: null,
+            'du' => $date('du'),
+            'au' => $date('au'),
+            'livraison' => (string) $request->query->get('livraison') ?: null,
         ];
     }
 }
