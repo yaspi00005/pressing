@@ -2,6 +2,11 @@ twig:
     default_path: '%kernel.project_dir%/templates'
     globals:
         domaine: "https://127.0.0.1:8000"
+        app_devise: '%app.devise%'
+        pressing:
+            nom: '%app.pressing.nom%'
+            adresse: '%app.pressing.adresse%'
+            telephone: '%app.pressing.telephone%'
 when@test:
     twig:
         strict_variables: true

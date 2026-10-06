@@ -35,6 +35,59 @@ class Clients
     #[ORM\Column]
     private ?bool $sendMessage = true;
 
+    #[ORM\Column(options: ['default' => 0])]
+    private int $pointsFidelite = 0;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $notes = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
+
+    public function getNomComplet(): string
+    {
+        return trim($this->prenom.' '.$this->nom);
+    }
+
+    public function __toString(): string
+    {
+        return $this->getNomComplet();
+    }
+
+    public function getPointsFidelite(): int
+    {
+        return $this->pointsFidelite;
+    }
+
+    public function setPointsFidelite(int $pointsFidelite): static
+    {
+        $this->pointsFidelite = max(0, $pointsFidelite);
+
+        return $this;
+    }
+
+    public function getNotes(): ?string
+    {
+        return $this->notes;
+    }
+
+    public function setNotes(?string $notes): static
+    {
+        $this->notes = $notes;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

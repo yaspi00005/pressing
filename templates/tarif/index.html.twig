@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Services & tarifs{% endblock %}
+{% block page_title %}Services &amp; tarifs{% endblock %}
+
+{% block body %}
+<div class="row">
+  <div class="col-xl-9">
+    <div class="card">
+      <div class="card-header flex-wrap">
+        <h4 class="card-title">Grille tarifaire (article × service)</h4>
+        <a href="{{ path('app_articles_categories_index') }}" class="btn btn-light btn-sm">Gérer les articles</a>
+      </div>
+      <div class="card-body">
+        {% if not services or not articles %}
+          <p class="text-muted">Ajoutez d'abord des <a href="{{ path('app_articles_categories_index') }}">articles</a> et au moins un service pour définir les prix.</p>
+        {% else %}
+          <form method="post">
+            <input type="hidden" name="_token" value="{{ csrf_token('tarifs') }}">
+            <div class="table-responsive">
+              <table class="table table-striped align-middle">
+                <thead>
+                  <tr>
+                    <th>Article</th>
+                    {% for s in services %}<th class="{{ s.actif ? '' : 'text-muted' }}">{{ s.nom }}{% if not s.actif %} <small>(inactif)</small>{% endif %}</th>{% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for a in articles %}
+                    <tr>
+                      <td>{{ a.noms }} <small class="text-muted">{{ a.categorie.noms }}</small></td>
+                      {% for s in services %}
+                        <td style="min-width: 110px">
+                          <input type="number" min="0" class="form-control form-control-sm" name="prix[{{ a.id }}][{{ s.id }}]" value="{{ tarifs[a.id][s.id].prix|default('') }}" placeholder="{{ a.prix }}">
+                        </td>
+                      {% endfor %}
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <p class="text-muted small">Case vide = prix de base de l'article (valeur grisée) utilisé pour ce service.</p>
+            <button class="btn btn-primary">Enregistrer la grille</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3">
+    <div class="card">
+      <div class="card-header"><h4 class="card-title">Services</h4></div>
+      <div class="card-body">
+        <ul class="list-unstyled">
+          {% for s in services %}
+            <li class="d-flex justify-content-between align-items-center mb-2">
+              <span>{{ s.nom }} <small class="text-muted">{{ s.code }}</small></span>
+              <form method="post" action="{{ path('app_service_toggle', {id: s.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('service' ~ s.id) }}">
+                <button class="btn btn-sm {{ s.actif ? 'btn-outline-secondary' : 'btn-outline-success' }}">{{ s.actif ? 'Désactiver' : 'Activer' }}</button>
+              </form>
+            </li>
+          {% else %}
+            <li class="text-muted">Aucun service. Exemples : Lavage, Repassage, Nettoyage à sec, Détachage.</li>
+          {% endfor %}
+        </ul>
+        <hr>
+        {{ form_start(form) }}
+          <div class="mb-2">{{ form_label(form.nom) }}{{ form_widget(form.nom) }}</div>
+          <div class="mb-2">{{ form_label(form.code) }}{{ form_widget(form.code) }}</div>
+          <input type="hidden" name="{{ form.actif.vars.full_name }}" value="1">
+          <button class="btn btn-primary w-100">Ajouter le service</button>
+          {% do form.actif.setRendered %}
+        {{ form_end(form) }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

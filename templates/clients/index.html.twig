@@ -33,7 +33,9 @@
                   <td>{{ client.genres }}</td>
                   <td>{{ client.adresses }}</td>
                   <td class="text-center">
-                    <a href="{{ path('app_clients_edit', {'id': client.id}) }}" title="Modifier"><i class="fas fa-edit"></i></a>
+                    <a href="{{ path('app_clients_show', {'id': client.id}) }}" title="Fiche et historique"><i class="fas fa-eye"></i></a>
+                    <a href="{{ path('app_commande_new', {client: client.id}) }}" class="ms-2" title="Nouvelle commande"><i class="fas fa-plus-circle"></i></a>
+                    <a href="{{ path('app_clients_edit', {'id': client.id}) }}" class="ms-2" title="Modifier"><i class="fas fa-edit"></i></a>
                   </td>
                 </tr>
               {% endfor %}

@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Caisse{% endblock %}
+{% block page_title %}Caisse du {{ jour|date('d/m/Y') }}{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+  <div>
+    <a class="btn btn-light btn-sm" href="{{ path('app_caisse', {jour: jour|date_modify('-1 day')|date('Y-m-d')}) }}">&laquo; Jour précédent</a>
+    <a class="btn btn-light btn-sm" href="{{ path('app_caisse') }}">Aujourd'hui</a>
+    <a class="btn btn-light btn-sm" href="{{ path('app_caisse', {jour: jour|date_modify('+1 day')|date('Y-m-d')}) }}">Jour suivant &raquo;</a>
+  </div>
+  <button class="btn btn-primary btn-sm" onclick="window.print()"><i class="fas fa-print"></i> Imprimer</button>
+</div>
+
+<div class="row">
+  <div class="col-md-4"><div class="card"><div class="card-body"><p class="mb-1 text-muted">Encaissé</p><h3 class="text-success mb-0">{{ totalEncaisse|money }}</h3></div></div></div>
+  <div class="col-md-4"><div class="card"><div class="card-body"><p class="mb-1 text-muted">Dépenses</p><h3 class="text-danger mb-0">{{ totalDepenses|money }}</h3></div></div></div>
+  <div class="col-md-4"><div class="card"><div class="card-body"><p class="mb-1 text-muted">Solde de la journée</p><h3 class="mb-0">{{ solde|money }}</h3></div></div></div>
+</div>
+
+<div class="row">
+  <div class="col-xl-8">
+    <div class="card">
+      <div class="card-header"><h4 class="card-title">Encaissements</h4></div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table">
+            <thead><tr><th>Heure</th><th>Commande</th><th>Client</th><th>Mode</th><th class="text-end">Montant</th></tr></thead>
+            <tbody>
+              {% for p in encaissements %}
+                <tr>
+                  <td>{{ p.datePaiement|date('H:i') }}</td>
+                  <td><a href="{{ path('app_commande_show', {id: p.commande.id}) }}">{{ p.commande.numero }}</a></td>
+                  <td>{{ p.commande.client.nomComplet }}</td>
+                  <td>{{ p.modeLabel }}</td>
+                  <td class="text-end">{{ p.montant|money }}</td>
+                </tr>
+              {% else %}
+                <tr><td colspan="5" class="text-muted text-center">Aucun encaissement.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4">
+    <div class="card">
+      <div class="card-header"><h4 class="card-title">Par mode de paiement</h4></div>
+      <div class="card-body">
+        <table class="table mb-0">
+          {% for mode, total in parMode %}<tr><td>{{ modes[mode]|default(mode) }}</td><td class="text-end">{{ total|money }}</td></tr>{% else %}<tr><td class="text-muted">—</td></tr>{% endfor %}
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h4 class="card-title">Dépenses du jour</h4></div>
+      <div class="card-body">
+        <table class="table mb-0">
+          {% for d in depenses %}<tr><td>{{ d.libelle }}</td><td class="text-end">{{ d.montant|money }}</td></tr>{% else %}<tr><td class="text-muted">—</td></tr>{% endfor %}
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

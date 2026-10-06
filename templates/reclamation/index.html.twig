@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réclamations{% endblock %}
+{% block page_title %}Réclamations{% endblock %}
+
+{% block body %}
+<div class="row">
+  <div class="col-xl-8">
+    {% for r in reclamations %}
+      <div class="card">
+        <div class="card-header flex-wrap">
+          <h5 class="card-title mb-0">{{ r.objet }} <span class="badge bg-{{ r.statut == 'resolue' ? 'success' : (r.statut == 'rejetee' ? 'secondary' : (r.statut == 'en_cours' ? 'warning' : 'danger')) }}">{{ r.statutLabel }}</span></h5>
+          <small class="text-muted">{{ r.dateCreation|date('d/m/Y H:i') }}</small>
+        </div>
+        <div class="card-body">
+          <p class="mb-1"><a href="{{ path('app_clients_show', {id: r.client.id}) }}">{{ r.client.nomComplet }}</a>{% if r.commande %} · commande <a href="{{ path('app_commande_show', {id: r.commande.id}) }}">{{ r.commande.numero }}</a>{% endif %}</p>
+          <p>{{ r.description|nl2br }}</p>
+          {% if r.resolution %}<p class="text-success"><strong>Résolution :</strong> {{ r.resolution }}</p>{% endif %}
+          <form method="post" action="{{ path('app_reclamation_traiter', {id: r.id}) }}" class="row g-2">
+            <input type="hidden" name="_token" value="{{ csrf_token('reclamation' ~ r.id) }}">
+            <div class="col-md-3"><select name="statut" class="form-select form-select-sm">{% for k, label in statuts %}<option value="{{ k }}" {{ r.statut == k ? 'selected' }}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="col-md-7"><input type="text" name="resolution" value="{{ r.resolution }}" class="form-control form-control-sm" placeholder="Résolution / geste commercial"></div>
+            <div class="col-md-2"><button class="btn btn-sm btn-primary w-100">Mettre à jour</button></div>
+          </form>
+        </div>
+      </div>
+    {% else %}
+      <div class="card"><div class="card-body text-muted">Aucune réclamation.</div></div>
+    {% endfor %}
+  </div>
+  <div class="col-xl-4">
+    <div class="card">
+      <div class="card-header"><h4 class="card-title">Nouvelle réclamation</h4></div>
+      <div class="card-body">
+        {{ form_start(form) }}
+          {{ form_errors(form) }}
+          {% for f in form %}{% if f.vars.name != '_token' %}<div class="mb-2">{{ form_label(f) }}{{ form_widget(f) }}{{ form_errors(f) }}</div>{% endif %}{% endfor %}
+          <button class="btn btn-primary w-100">Enregistrer</button>
+        {{ form_end(form) }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,24 +1,36 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Client{% endblock %}
+{% block title %}{{ client.nomComplet }}{% endblock %}
 {% block page_title %}Client{% endblock %}
+
 {% block body %}
-<div class="card">
-  <div class="card-header"><h4 class="card-title">Client</h4></div>
-  <div class="card-body">
-    <table class="table">
-      <tbody>
-        <tr><th>Id</th><td>{{ client.id }}</td></tr>
-        <tr><th>Prénom</th><td>{{ client.prenom }}</td></tr>
-        <tr><th>Nom</th><td>{{ client.nom }}</td></tr>
-        <tr><th>Téléphones</th><td>{{ client.telephones }}</td></tr>
-        <tr><th>Genres</th><td>{{ client.genres }}</td></tr>
-        <tr><th>Adresse</th><td>{{ client.adresse }}</td></tr>
-      </tbody>
-    </table>
-    <a href="{{ path('app_clients_index') }}" class="btn btn-light">Retour à la liste</a>
-    <a href="{{ path('app_clients_edit', {'id': client.id}) }}" class="btn btn-primary">Modifier</a>
-    {{ include('clients/_delete_form.html.twig') }}
+<div class="row">
+  <div class="col-xl-4">
+    <div class="card">
+      <div class="card-header"><h4 class="card-title">{{ client.nomComplet }}</h4></div>
+      <div class="card-body">
+        <p class="mb-1"><i class="fas fa-phone"></i> {{ client.telephones }}</p>
+        <p class="mb-1"><i class="fas fa-envelope"></i> {{ client.email }}</p>
+        <p class="mb-1"><i class="fas fa-location-dot"></i> {{ client.adresses }}</p>
+        <p class="mb-3"><i class="fas fa-venus-mars"></i> {{ client.genres }}</p>
+        {% if client.notes %}<p class="text-muted">{{ client.notes }}</p>{% endif %}
+        <hr>
+        <p class="mb-1">Total dépensé : <strong>{{ total_depense|money }}</strong></p>
+        <p class="mb-1">Solde dû : <strong class="{{ solde_du ? 'text-warning' : 'text-success' }}">{{ solde_du|money }}</strong></p>
+        <p>Points fidélité : <span class="badge bg-primary">{{ client.pointsFidelite }}</span></p>
+        <a href="{{ path('app_commande_new', {client: client.id}) }}" class="btn btn-primary w-100 mb-2"><i class="fas fa-plus"></i> Nouvelle commande</a>
+        <a href="{{ path('app_clients_edit', {id: client.id}) }}" class="btn btn-light w-100">Modifier</a>
+        {{ include('clients/_delete_form.html.twig') }}
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-8">
+    <div class="card">
+      <div class="card-header"><h4 class="card-title">Historique des commandes ({{ commandes|length }})</h4></div>
+      <div class="card-body">
+        <div class="table-responsive">{% include 'commande/_table.html.twig' %}</div>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}

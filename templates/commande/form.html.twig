@@ -1,0 +1,159 @@
+{% extends 'base.html.twig' %}
+
+{% import _self as m %}
+
+{% macro ligne(l) %}
+  <div class="ligne-commande row g-2 align-items-end border-bottom pb-2 mb-2">
+    <div class="col-lg-3">{{ form_label(l.article) }}{{ form_widget(l.article) }}{{ form_errors(l.article) }}</div>
+    <div class="col-lg-2">{{ form_label(l.service) }}{{ form_widget(l.service) }}{{ form_errors(l.service) }}</div>
+    <div class="col-lg-1 col-4">{{ form_label(l.quantite) }}{{ form_widget(l.quantite) }}{{ form_errors(l.quantite) }}</div>
+    <div class="col-lg-2 col-4">{{ form_label(l.prixUnitaire) }}{{ form_widget(l.prixUnitaire) }}{{ form_errors(l.prixUnitaire) }}</div>
+    <div class="col-lg-3 col-12">{{ form_label(l.observation) }}{{ form_widget(l.observation) }}</div>
+    <div class="col-lg-1 col-4 text-end">
+      <button type="button" class="btn btn-outline-danger btn-sm ligne-supprimer" title="Retirer la ligne"><i class="fas fa-trash"></i></button>
+    </div>
+  </div>
+{% endmacro %}
+
+{% block title %}{{ titre }}{% endblock %}
+{% block page_title %}{{ titre }}{% endblock %}
+
+{% block body %}
+{{ form_start(form, {attr: {id: 'commande-form', novalidate: 'novalidate'}}) }}
+<div class="row">
+  <div class="col-xl-8">
+    <div class="card">
+      <div class="card-header"><h4 class="card-title">Client et délais</h4></div>
+      <div class="card-body">
+        {{ form_errors(form) }}
+        <div class="row">
+          <div class="col-md-7 mb-3">
+            {{ form_label(form.client) }}
+            {{ form_widget(form.client) }}
+            {{ form_errors(form.client) }}
+            <a href="{{ path('app_clients_new') }}" class="small" target="_blank" rel="noopener">+ Nouveau client</a>
+          </div>
+          <div class="col-md-5 mb-3">
+            {{ form_label(form.dateRetraitPrevue) }}
+            {{ form_widget(form.dateRetraitPrevue) }}
+            {{ form_errors(form.dateRetraitPrevue) }}
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="form-check mt-4">
+              {{ form_widget(form.urgent) }}
+              {{ form_label(form.urgent) }} (+{{ majoration }} %)
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">{{ form_label(form.modeLivraison) }}{{ form_widget(form.modeLivraison) }}</div>
+          <div class="col-md-4 mb-3 bloc-domicile">{{ form_label(form.fraisLivraison) }}{{ form_widget(form.fraisLivraison) }}{{ form_errors(form.fraisLivraison) }}</div>
+          <div class="col-12 mb-3 bloc-domicile">{{ form_label(form.adresseLivraison) }}{{ form_widget(form.adresseLivraison) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h4 class="card-title">Articles déposés</h4>
+        <button type="button" id="ajouter-ligne" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Ajouter un article</button>
+      </div>
+      <div class="card-body">
+        {{ form_errors(form.lignes) }}
+        <div id="lignes" data-prototype="{{ m.ligne(form.lignes.vars.prototype)|e('html_attr') }}" data-index="{{ form.lignes|length }}">
+          {% for l in form.lignes %}{{ m.ligne(l) }}{% endfor %}
+        </div>
+        <p class="text-muted small mb-0">Le prix se remplit automatiquement depuis la grille tarifaire (article × service) ; il reste modifiable.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-4">
+    <div class="card">
+      <div class="card-header"><h4 class="card-title">Récapitulatif</h4></div>
+      <div class="card-body">
+        <table class="table table-borderless mb-3">
+          <tr><td>Sous-total</td><td class="text-end" id="r-sous-total">0</td></tr>
+          <tr id="r-ligne-majoration" class="d-none"><td>Majoration express</td><td class="text-end" id="r-majoration">0</td></tr>
+          <tr id="r-ligne-livraison" class="d-none"><td>Livraison</td><td class="text-end" id="r-livraison">0</td></tr>
+          <tr><td>Remise</td><td class="text-end text-success" id="r-remise">0</td></tr>
+          <tr class="border-top"><th>Total</th><th class="text-end fs-5" id="r-total">0</th></tr>
+        </table>
+        <div class="mb-3">{{ form_label(form.remise) }}{{ form_widget(form.remise) }}{{ form_errors(form.remise) }}</div>
+        {% if form.acompte is defined %}
+          <div class="mb-3">{{ form_label(form.acompte) }}{{ form_widget(form.acompte) }}{{ form_errors(form.acompte) }}</div>
+          <div class="mb-3">{{ form_label(form.modeAcompte) }}{{ form_widget(form.modeAcompte) }}</div>
+          <p class="mb-3">Reste à payer : <strong id="r-reste">0</strong></p>
+        {% endif %}
+        <div class="mb-3">{{ form_label(form.notes) }}{{ form_widget(form.notes) }}</div>
+        <button type="submit" class="btn btn-primary w-100">Enregistrer la commande</button>
+      </div>
+    </div>
+  </div>
+</div>
+{{ form_end(form) }}
+{% endblock %}
+
+{% block javascripts %}
+<script>
+(function () {
+  const TARIFS = {{ tarifs|json_encode|raw }};
+  const BASE = {{ prixBase|json_encode|raw }};
+  const MAJORATION = {{ majoration }};
+  const DEVISE = ' {{ app_devise }}';
+  const form = document.getElementById('commande-form');
+  const conteneur = document.getElementById('lignes');
+  const fmt = (n) => new Intl.NumberFormat('fr-FR').format(Math.round(n)) + DEVISE;
+  const val = (sel) => parseInt((form.querySelector(sel) || {}).value, 10) || 0;
+
+  function majPrix(ligne) {
+    const a = ligne.querySelector('.ligne-article').value;
+    const s = ligne.querySelector('.ligne-service').value;
+    if (!a) return;
+    const p = TARIFS[a + '-' + s] ?? BASE[a];
+    if (p !== undefined) ligne.querySelector('.ligne-prix').value = p;
+  }
+
+  function recalculer() {
+    let sous = 0;
+    conteneur.querySelectorAll('.ligne-commande').forEach((l) => {
+      sous += (parseInt(l.querySelector('.ligne-qte').value, 10) || 0) * (parseInt(l.querySelector('.ligne-prix').value, 10) || 0);
+    });
+    const urgent = form.querySelector('[name$="[urgent]"]').checked;
+    const domicile = form.querySelector('[name$="[modeLivraison]"]').value === 'domicile';
+    const maj = urgent ? sous * MAJORATION / 100 : 0;
+    const liv = domicile ? val('[name$="[fraisLivraison]"]') : 0;
+    const remise = val('[name$="[remise]"]');
+    const total = Math.max(0, sous + maj + liv - remise);
+    const set = (id, v) => { document.getElementById(id).textContent = fmt(v); };
+    set('r-sous-total', sous); set('r-majoration', maj); set('r-livraison', liv); set('r-remise', -remise); set('r-total', total);
+    document.getElementById('r-ligne-majoration').classList.toggle('d-none', !urgent);
+    document.getElementById('r-ligne-livraison').classList.toggle('d-none', !domicile);
+    const reste = document.getElementById('r-reste');
+    if (reste) reste.textContent = fmt(Math.max(0, total - val('[name$="[acompte]"]')));
+    form.querySelectorAll('.bloc-domicile').forEach((b) => b.classList.toggle('d-none', !domicile));
+  }
+
+  function ajouterLigne() {
+    const i = parseInt(conteneur.dataset.index, 10);
+    conteneur.dataset.index = i + 1;
+    conteneur.insertAdjacentHTML('beforeend', conteneur.dataset.prototype.replace(/__name__/g, i));
+    const l = conteneur.lastElementChild;
+    l.querySelector('.ligne-qte').value = 1;
+    recalculer();
+  }
+
+  document.getElementById('ajouter-ligne').addEventListener('click', ajouterLigne);
+  conteneur.addEventListener('click', (e) => {
+    const b = e.target.closest('.ligne-supprimer');
+    if (b) { b.closest('.ligne-commande').remove(); recalculer(); }
+  });
+  conteneur.addEventListener('change', (e) => {
+    const l = e.target.closest('.ligne-commande');
+    if (l && (e.target.matches('.ligne-article') || e.target.matches('.ligne-service'))) majPrix(l);
+    recalculer();
+  });
+  form.addEventListener('input', recalculer);
+  form.addEventListener('change', recalculer);
+  if (!conteneur.children.length) ajouterLigne();
+  recalculer();
+})();
+</script>
+{% endblock %}

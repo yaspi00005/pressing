@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Stock produits{% endblock %}
+{% block page_title %}Stock de produits{% endblock %}
+
+{% block body %}
+<div class="row">
+  <div class="col-xl-8">
+    <div class="card">
+      <div class="card-header"><h4 class="card-title">Produits & consommables (détergent, solvant, cintres, housses…)</h4></div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead><tr><th>Produit</th><th>Stock</th><th>Seuil</th><th>Mouvement</th></tr></thead>
+            <tbody>
+              {% for p in produits %}
+                <tr class="{{ p.enAlerte ? 'table-warning' : '' }}">
+                  <td>{{ p.nom }}{% if p.enAlerte %} <i class="fas fa-triangle-exclamation text-warning" title="Stock bas"></i>{% endif %}</td>
+                  <td>{{ p.quantite }} {{ p.unite }}</td>
+                  <td>{{ p.seuilAlerte }}</td>
+                  <td>
+                    <form method="post" action="{{ path('app_stock_mouvement', {id: p.id}) }}" class="d-flex gap-1">
+                      <input type="hidden" name="_token" value="{{ csrf_token('stock' ~ p.id) }}">
+                      <input type="number" name="quantite" min="1" value="1" class="form-control form-control-sm" style="width: 80px">
+                      <button name="type" value="entree" class="btn btn-sm btn-success" title="Entrée"><i class="fas fa-plus"></i></button>
+                      <button name="type" value="sortie" class="btn btn-sm btn-danger" title="Sortie"><i class="fas fa-minus"></i></button>
+                    </form>
+                  </td>
+                </tr>
+              {% else %}
+                <tr><td colspan="4" class="text-muted text-center">Aucun produit.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4">
+    <div class="card">
+      <div class="card-header"><h4 class="card-title">Nouveau produit</h4></div>
+      <div class="card-body">
+        {{ form_start(form) }}
+          {{ form_errors(form) }}
+          {% for f in form %}{% if f.vars.name != '_token' %}<div class="mb-2">{{ form_label(f) }}{{ form_widget(f) }}{{ form_errors(f) }}</div>{% endif %}{% endfor %}
+          <button class="btn btn-primary w-100">Ajouter</button>
+        {{ form_end(form) }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

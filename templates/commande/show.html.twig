@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Commande {{ commande.numero }}{% endblock %}
+{% block page_title %}Commande {{ commande.numero }}{% endblock %}
+
+{% block body %}
+<div class="row">
+  <div class="col-xl-8">
+    <div class="card">
+      <div class="card-header flex-wrap">
+        <h4 class="card-title">
+          {{ commande.numero }}
+          <span class="badge bg-{{ commande.statutBadge }}">{{ commande.statutLabel }}</span>
+          {% if commande.urgent %}<span class="badge bg-danger">Express</span>{% endif %}
+          {% if commande.enRetard %}<span class="badge bg-danger">En retard</span>{% endif %}
+        </h4>
+        <div>
+          <a href="{{ path('app_commande_ticket', {id: commande.id}) }}" target="_blank" class="btn btn-light btn-sm"><i class="fas fa-print"></i> Ticket</a>
+          <a href="{{ whatsapp_link(commande) }}" target="_blank" rel="noopener" class="btn btn-success btn-sm"><i class="fab fa-whatsapp"></i> Prévenir le client</a>
+          {% if not commande.terminee %}<a href="{{ path('app_commande_edit', {id: commande.id}) }}" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Modifier</a>{% endif %}
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <p class="mb-1 text-muted">Client</p>
+            <p><a href="{{ path('app_clients_show', {id: commande.client.id}) }}">{{ commande.client.nomComplet }}</a> — {{ commande.client.telephones }}</p>
+            <p class="mb-1 text-muted">Retour du linge</p>
+            <p>{{ commande.livraisonDomicile ? 'Livraison à domicile : ' ~ commande.adresseLivraison : 'Retrait au pressing' }}</p>
+          </div>
+          <div class="col-md-6">
+            <p class="mb-1 text-muted">Déposé le</p>
+            <p>{{ commande.dateDepot|date('d/m/Y H:i') }}{% if commande.createdBy %} par {{ commande.createdBy.userIdentifier }}{% endif %}</p>
+            <p class="mb-1 text-muted">Retrait prévu</p>
+            <p class="{{ commande.enRetard ? 'text-danger fw-bold' }}">{{ commande.dateRetraitPrevue|date('d/m/Y H:i') }}</p>
+            {% if commande.dateLivraison %}<p class="mb-1 text-muted">Livré le</p><p>{{ commande.dateLivraison|date('d/m/Y H:i') }}</p>{% endif %}
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table">
+            <thead><tr><th>Article</th><th>Service</th><th class="text-end">Qté</th><th class="text-end">P.U.</th><th class="text-end">Montant</th></tr></thead>
+            <tbody>
+              {% for l in commande.lignes %}
+                <tr>
+                  <td>{{ l.article.noms }}{% if l.observation %}<br><small class="text-muted">{{ l.observation }}</small>{% endif %}</td>
+                  <td>{{ l.service.nom }}</td>
+                  <td class="text-end">{{ l.quantite }}</td>
+                  <td class="text-end">{{ l.prixUnitaire|money }}</td>
+                  <td class="text-end">{{ l.montant|money }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr><td colspan="4" class="text-end">Sous-total</td><td class="text-end">{{ commande.sousTotal|money }}</td></tr>
+              {% if commande.majoration %}<tr><td colspan="4" class="text-end">Majoration express ({{ commande.majorationPourcent }} %)</td><td class="text-end">{{ commande.majoration|money }}</td></tr>{% endif %}
+              {% if commande.fraisLivraison %}<tr><td colspan="4" class="text-end">Livraison</td><td class="text-end">{{ commande.fraisLivraison|money }}</td></tr>{% endif %}
+              {% if commande.remise %}<tr><td colspan="4" class="text-end">Remise</td><td class="text-end text-success">-{{ commande.remise|money }}</td></tr>{% endif %}
+              <tr><th colspan="4" class="text-end">Total</th><th class="text-end">{{ commande.total|money }}</th></tr>
+            </tfoot>
+          </table>
+        </div>
+        {% if commande.notes %}<p class="text-muted"><i class="fas fa-note-sticky"></i> {{ commande.notes }}</p>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-4">
+    {% if not commande.terminee %}
+      <div class="card">
+        <div class="card-header"><h4 class="card-title">Avancement</h4></div>
+        <div class="card-body">
+          {% set suivant = commande.statutSuivant %}
+          {% if suivant %}
+            <form method="post" action="{{ path('app_commande_statut', {id: commande.id}) }}" class="mb-2">
+              <input type="hidden" name="_token" value="{{ csrf_token('statut' ~ commande.id) }}">
+              <input type="hidden" name="statut" value="{{ suivant }}">
+              {% if suivant == 'livre' and not commande.solde %}
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" name="forcer" value="1" id="forcer">
+                  <label class="form-check-label" for="forcer">Livrer à crédit (reste {{ commande.reste|money }})</label>
+                </div>
+              {% endif %}
+              <button class="btn btn-primary w-100">Passer à « {{ constant('App\\Entity\\Commande::STATUTS')[suivant] }} »</button>
+            </form>
+          {% endif %}
+          <form method="post" action="{{ path('app_commande_statut', {id: commande.id}) }}" onsubmit="return confirm('Annuler cette commande ?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('statut' ~ commande.id) }}">
+            <input type="hidden" name="statut" value="annule">
+            <button class="btn btn-outline-danger w-100">Annuler la commande</button>
+          </form>
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="card">
+      <div class="card-header"><h4 class="card-title">Paiements</h4></div>
+      <div class="card-body">
+        <p class="mb-1">Payé : <strong>{{ commande.totalPaye|money }}</strong> / {{ commande.total|money }}</p>
+        <p class="{{ commande.reste ? 'text-warning' : 'text-success' }} fw-bold">{{ commande.reste ? 'Reste à payer : ' ~ commande.reste|money : 'Commande soldée' }}</p>
+        <ul class="list-unstyled">
+          {% for p in commande.paiements %}
+            <li class="d-flex justify-content-between border-bottom py-1"><span>{{ p.datePaiement|date('d/m H:i') }} · {{ p.modeLabel }}{% if p.reference %} <small class="text-muted">({{ p.reference }})</small>{% endif %}</span><strong>{{ p.montant|money }}</strong></li>
+          {% else %}
+            <li class="text-muted">Aucun paiement.</li>
+          {% endfor %}
+        </ul>
+        {% if commande.reste > 0 and commande.statut != 'annule' %}
+          <form method="post" action="{{ path('app_commande_paiement', {id: commande.id}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('paiement' ~ commande.id) }}">
+            <div class="mb-2"><input type="number" name="montant" min="1" max="{{ commande.reste }}" value="{{ commande.reste }}" class="form-control" required></div>
+            <div class="mb-2">
+              <select name="mode" class="form-select">{% for k, label in modes %}<option value="{{ k }}">{{ label }}</option>{% endfor %}</select>
+            </div>
+            <div class="mb-2"><input type="text" name="reference" class="form-control" placeholder="Référence (n° transaction, chèque…)"></div>
+            <button class="btn btn-success w-100">Encaisser</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

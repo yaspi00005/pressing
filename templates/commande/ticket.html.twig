@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Ticket {{ commande.numero }}</title>
+  <style>
+    body { font-family: monospace; font-size: 12px; width: 76mm; margin: 0 auto; padding: 4mm; color: #000; }
+    h1, h2, p { margin: 0; text-align: center; }
+    h1 { font-size: 16px; }
+    .numero { font-size: 20px; font-weight: bold; margin: 6px 0; border: 2px solid #000; padding: 4px; }
+    table { width: 100%; border-collapse: collapse; margin: 6px 0; }
+    td { padding: 2px 0; vertical-align: top; }
+    td.r { text-align: right; white-space: nowrap; }
+    hr { border: 0; border-top: 1px dashed #000; margin: 6px 0; }
+    .gros { font-size: 14px; font-weight: bold; }
+    .actions { text-align: center; margin-bottom: 8px; }
+    @media print { .actions { display: none; } body { width: auto; } }
+  </style>
+</head>
+<body>
+  <div class="actions"><button onclick="window.print()">Imprimer</button></div>
+  <h1>{{ pressing.nom }}</h1>
+  {% if pressing.adresse %}<p>{{ pressing.adresse }}</p>{% endif %}
+  {% if pressing.telephone %}<p>Tél : {{ pressing.telephone }}</p>{% endif %}
+  <hr>
+  <p class="numero">{{ commande.numero }}</p>
+  <p>Déposé le {{ commande.dateDepot|date('d/m/Y H:i') }}</p>
+  <p>Client : {{ commande.client.nomComplet }} ({{ commande.client.telephones }})</p>
+  <p class="gros">Retrait : {{ commande.dateRetraitPrevue|date('d/m/Y H:i') }}{% if commande.urgent %} — EXPRESS{% endif %}</p>
+  <hr>
+  <table>
+    {% for l in commande.lignes %}
+      <tr><td>{{ l.quantite }} × {{ l.article.noms }}<br><small>{{ l.service.nom }}{% if l.observation %} — {{ l.observation }}{% endif %}</small></td><td class="r">{{ l.montant|money }}</td></tr>
+    {% endfor %}
+  </table>
+  <hr>
+  <table>
+    <tr><td>Pièces</td><td class="r">{{ commande.nombrePieces }}</td></tr>
+    {% if commande.majoration %}<tr><td>Majoration express</td><td class="r">{{ commande.majoration|money }}</td></tr>{% endif %}
+    {% if commande.fraisLivraison %}<tr><td>Livraison</td><td class="r">{{ commande.fraisLivraison|money }}</td></tr>{% endif %}
+    {% if commande.remise %}<tr><td>Remise</td><td class="r">-{{ commande.remise|money }}</td></tr>{% endif %}
+    <tr class="gros"><td>TOTAL</td><td class="r">{{ commande.total|money }}</td></tr>
+    <tr><td>Payé</td><td class="r">{{ commande.totalPaye|money }}</td></tr>
+    <tr class="gros"><td>RESTE À PAYER</td><td class="r">{{ commande.reste|money }}</td></tr>
+  </table>
+  <hr>
+  <p>Ticket à présenter au retrait.</p>
+  <p>Merci de votre confiance !</p>
+  <script>window.addEventListener('load', function () { if (location.hash === '#print') window.print(); });</script>
+</body>
+</html>

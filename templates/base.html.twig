@@ -72,28 +72,39 @@
         <div class="dlabnav">
             <div class="dlabnav-scroll">
                 <ul class="metismenu" id="menu">
+                    <li><a href="{{ path('app_dashboard') }}" aria-expanded="false"><i class="fas fa-home"></i><span class="nav-text">Tableau de bord</span></a></li>
                     <li>
-                        <a href="{{ path('app_dashboard') }}" aria-expanded="false">
-                            <i class="fas fa-home"></i>
-                            <span class="nav-text">Tableau de bord</span>
-                        </a>
+                        <a class="has-arrow" href="javascript:void(0);" aria-expanded="false"><i class="fas fa-receipt"></i><span class="nav-text">Commandes</span></a>
+                        <ul aria-expanded="false">
+                            <li><a href="{{ path('app_commande_new') }}">Nouvelle commande</a></li>
+                            <li><a href="{{ path('app_commande_index') }}">Toutes les commandes</a></li>
+                            <li><a href="{{ path('app_commande_index', {filtre: 'retard'}) }}">En retard</a></li>
+                            <li><a href="{{ path('app_commande_index', {filtre: 'impayes'}) }}">Impayées</a></li>
+                        </ul>
                     </li>
                     <li>
-                        <a class="has-arrow" href="javascript:void(0);" aria-expanded="false">
-                            <i class="fas fa-user"></i>
-                            <span class="nav-text">Clients</span>
-                        </a>
+                        <a class="has-arrow" href="javascript:void(0);" aria-expanded="false"><i class="fas fa-user"></i><span class="nav-text">Clients</span></a>
                         <ul aria-expanded="false">
                             <li><a href="{{ path('app_clients_new') }}">Nouveau client</a></li>
                             <li><a href="{{ path('app_clients_index') }}">Liste des clients</a></li>
                         </ul>
                     </li>
                     <li>
-                        <a href="{{ path('app_articles_categories_index') }}" aria-expanded="false">
-                            <i class="fas fa-shirt"></i>
-                            <span class="nav-text">Gestion articles</span>
-                        </a>
+                        <a class="has-arrow" href="javascript:void(0);" aria-expanded="false"><i class="fas fa-shirt"></i><span class="nav-text">Catalogue</span></a>
+                        <ul aria-expanded="false">
+                            <li><a href="{{ path('app_articles_categories_index') }}">Articles</a></li>
+                            <li><a href="{{ path('app_tarif_index') }}">Services &amp; tarifs</a></li>
+                        </ul>
                     </li>
+                    <li>
+                        <a class="has-arrow" href="javascript:void(0);" aria-expanded="false"><i class="fas fa-cash-register"></i><span class="nav-text">Caisse</span></a>
+                        <ul aria-expanded="false">
+                            <li><a href="{{ path('app_caisse') }}">Rapport du jour</a></li>
+                            <li><a href="{{ path('app_depense_index') }}">Dépenses</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="{{ path('app_stock_index') }}" aria-expanded="false"><i class="fas fa-boxes-stacked"></i><span class="nav-text">Stock produits</span></a></li>
+                    <li><a href="{{ path('app_reclamation_index') }}" aria-expanded="false"><i class="fas fa-comment-dots"></i><span class="nav-text">Réclamations</span></a></li>
                 </ul>
             </div>
         </div>

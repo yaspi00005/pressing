@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Clients;
 use App\Form\ClientsType;
 use App\Repository\ClientsRepository;
+use App\Repository\CommandeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,10 +44,15 @@ class ClientsController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_clients_show', methods: ['GET'])]
-    public function show(Clients $client): Response
+    public function show(Clients $client, CommandeRepository $commandes): Response
     {
+        $historique = $commandes->rechercher(null, null, false, false, $client);
+
         return $this->render('clients/show.html.twig', [
             'client' => $client,
+            'commandes' => $historique,
+            'total_depense' => array_sum(array_map(static fn ($c) => 'annule' === $c->getStatut() ? 0 : $c->getTotal(), $historique)),
+            'solde_du' => array_sum(array_map(static fn ($c) => 'annule' === $c->getStatut() ? 0 : $c->getReste(), $historique)),
         ]);
     }
 
@@ -69,9 +75,14 @@ class ClientsController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_clients_delete', methods: ['POST'])]
-    public function delete(Request $request, Clients $client, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Clients $client, EntityManagerInterface $entityManager, CommandeRepository $commandes): Response
     {
         if ($this->isCsrfTokenValid('delete'.$client->getId(), $request->request->get('_token'))) {
+            if ($commandes->count(['client' => $client]) > 0) {
+                $this->addFlash('warning', 'Ce client a des commandes : suppression impossible.');
+
+                return $this->redirectToRoute('app_clients_show', ['id' => $client->getId()], Response::HTTP_SEE_OTHER);
+            }
             $entityManager->remove($client);
             $entityManager->flush();
         }

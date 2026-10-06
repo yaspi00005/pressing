@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Commandes{% endblock %}
+{% block page_title %}Commandes{% endblock %}
+
+{% block body %}
+<div class="card">
+  <div class="card-header flex-wrap">
+    <h4 class="card-title">Commandes</h4>
+    <a href="{{ path('app_commande_new') }}" class="btn btn-primary btn-rounded"><i class="fas fa-plus"></i> Nouvelle commande</a>
+  </div>
+  <div class="card-body">
+    <form method="get" class="row g-2 mb-3">
+      <div class="col-md-5">
+        <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="N° de commande, nom ou téléphone du client…">
+      </div>
+      <div class="col-md-3">
+        <select name="statut" class="form-select" onchange="this.form.submit()">
+          <option value="">Tous les statuts</option>
+          {% for key, label in constant('App\\Entity\\Commande::STATUTS') %}
+            <option value="{{ key }}" {{ statut == key ? 'selected' }}>{{ label }} ({{ compteurs[key]|default(0) }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select name="filtre" class="form-select" onchange="this.form.submit()">
+          <option value="">Toutes</option>
+          <option value="retard" {{ filtre == 'retard' ? 'selected' }}>En retard</option>
+          <option value="impayes" {{ filtre == 'impayes' ? 'selected' }}>Impayées</option>
+        </select>
+      </div>
+      <div class="col-md-2"><button class="btn btn-light w-100">Rechercher</button></div>
+    </form>
+    <div class="table-responsive">
+      {% include 'commande/_table.html.twig' %}
+    </div>
+  </div>
+</div>
+{% endblock %}

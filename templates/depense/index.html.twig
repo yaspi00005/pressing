@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dépenses{% endblock %}
+{% block page_title %}Dépenses{% endblock %}
+
+{% block body %}
+<div class="row">
+  <div class="col-xl-8">
+    <div class="card">
+      <div class="card-header flex-wrap">
+        <h4 class="card-title">Dépenses — {{ mois|date('m/Y') }} : {{ total|money }}</h4>
+        <form method="get" class="d-flex gap-2">
+          <input type="month" name="mois" value="{{ mois|date('Y-m') }}" class="form-control form-control-sm" onchange="this.form.submit()">
+        </form>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table">
+            <thead><tr><th>Date</th><th>Libellé</th><th>Catégorie</th><th class="text-end">Montant</th><th></th></tr></thead>
+            <tbody>
+              {% for d in depenses %}
+                <tr>
+                  <td>{{ d.dateDepense|date('d/m/Y') }}</td>
+                  <td>{{ d.libelle }}{% if d.notes %}<br><small class="text-muted">{{ d.notes }}</small>{% endif %}</td>
+                  <td>{{ d.categorieLabel }}</td>
+                  <td class="text-end">{{ d.montant|money }}</td>
+                  <td class="text-end">
+                    <form method="post" action="{{ path('app_depense_delete', {id: d.id}) }}" onsubmit="return confirm('Supprimer cette dépense ?');">
+                      <input type="hidden" name="_token" value="{{ csrf_token('depense' ~ d.id) }}">
+                      <button class="btn btn-link text-danger p-0" title="Supprimer"><i class="fas fa-trash"></i></button>
+                    </form>
+                  </td>
+                </tr>
+              {% else %}
+                <tr><td colspan="5" class="text-muted text-center">Aucune dépense ce mois-ci.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% if parCategorie %}
+          <hr>
+          <h6>Par catégorie</h6>
+          {% for label, montant in parCategorie %}<span class="badge bg-light text-dark me-1">{{ label }} : {{ montant|money }}</span>{% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4">
+    <div class="card">
+      <div class="card-header"><h4 class="card-title">Nouvelle dépense</h4></div>
+      <div class="card-body">
+        {{ form_start(form) }}
+          {{ form_errors(form) }}
+          {% for f in form %}{% if f.vars.block_prefixes[1] != 'hidden' and f.vars.name != '_token' %}<div class="mb-2">{{ form_label(f) }}{{ form_widget(f) }}{{ form_errors(f) }}</div>{% endif %}{% endfor %}
+          <button class="btn btn-primary w-100">Enregistrer</button>
+        {{ form_end(form) }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
