@@ -37,11 +37,11 @@
       <div class="card-body">
         {% set max = 1 %}
         {% for g in graphique %}{% if g.total > max %}{% set max = g.total %}{% endif %}{% endfor %}
-        <div class="d-flex align-items-end justify-content-between" style="height: 200px;">
+        <div class="d-flex align-items-end justify-content-between" style="height: 150px;">
           {% for g in graphique %}
             <div class="text-center flex-fill px-1">
               <small class="d-block text-muted">{{ g.total ? g.total|money : '' }}</small>
-              <div class="bg-primary rounded-top" style="height: {{ (g.total / max * 150)|round }}px; min-height: 2px;" title="{{ g.total|money }}"></div>
+              <div class="bg-primary rounded-top mx-auto" style="width: 28px; height: {{ (g.total / max * 100)|round }}px; min-height: 2px;" title="{{ g.total|money }}"></div>
               <small>{{ g.label }}</small>
             </div>
           {% endfor %}
