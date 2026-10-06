@@ -31,7 +31,7 @@ class ReclamationController extends AbstractController
 
         return $this->render('reclamation/index.html.twig', [
             'reclamations' => $repo->findBy([], ['dateCreation' => 'DESC']),
-            'form' => $form,
+            'form' => $form->createView(),
             'statuts' => Reclamation::STATUTS,
         ]);
     }

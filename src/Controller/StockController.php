@@ -30,7 +30,7 @@ class StockController extends AbstractController
 
         return $this->render('stock/index.html.twig', [
             'produits' => $repo->findBy([], ['nom' => 'ASC']),
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 

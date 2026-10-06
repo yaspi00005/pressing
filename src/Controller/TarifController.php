@@ -65,7 +65,7 @@ class TarifController extends AbstractController
             'articles' => $listeArticles,
             'services' => $listeServices,
             'tarifs' => $existants,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 

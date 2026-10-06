@@ -173,7 +173,7 @@ class CommandeController extends AbstractController
         }
 
         return [
-            'form' => $form,
+            'form' => $form->createView(),
             'commande' => $commande,
             'titre' => $titre,
             'tarifs' => $prix,

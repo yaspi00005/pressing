@@ -43,7 +43,7 @@ class DepenseController extends AbstractController
             'mois' => $mois,
             'total' => array_sum($parCategorie),
             'parCategorie' => $parCategorie,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 
