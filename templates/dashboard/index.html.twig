@@ -10,10 +10,10 @@
     {label: 'Dépôts du jour', value: depots_jour, icon: 'fa-inbox', color: 'primary', url: path('app_commande_index')},
     {label: 'À retirer (prêtes)', value: a_retirer|length, icon: 'fa-box-open', color: 'info', url: path('app_commande_index', {statut: 'pret'})},
     {label: 'En retard', value: en_retard|length, icon: 'fa-clock', color: 'danger', url: path('app_commande_index', {filtre: 'retard'})},
-    {label: 'Impayés', value: total_impaye|money, icon: 'fa-hand-holding-dollar', color: 'warning', url: path('app_commande_index', {filtre: 'impayes'})},
+    {label: 'Impayés', value: total_impaye|money, icon: 'fa-hand-holding-usd', color: 'warning', url: path('app_commande_index', {filtre: 'impayes'})},
     {label: 'Encaissé ce mois', value: encaisse_mois|money, icon: 'fa-chart-line', color: 'success', url: path('app_caisse')},
     {label: 'Dépenses du mois', value: depenses_mois|money, icon: 'fa-wallet', color: 'secondary', url: path('app_depense_index')},
-    {label: 'Résultat du mois', value: benefice_mois|money, icon: 'fa-scale-balanced', color: (benefice_mois >= 0 ? 'primary' : 'danger'), url: path('app_depense_index')},
+    {label: 'Résultat du mois', value: benefice_mois|money, icon: 'fa-balance-scale', color: (benefice_mois >= 0 ? 'primary' : 'danger'), url: path('app_depense_index')},
   ] %}
   {% for stat in stats %}
     <div class="col-xl-3 col-sm-6">
@@ -90,7 +90,7 @@
             <p><i class="fas fa-comment-dots text-danger"></i> <a href="{{ path('app_reclamation_index') }}">{{ reclamations_ouvertes }} réclamation(s) ouverte(s)</a></p>
           {% endif %}
           {% for p in stock_alerte %}
-            <p class="mb-1"><i class="fas fa-triangle-exclamation text-warning"></i> Stock bas : <a href="{{ path('app_stock_index') }}">{{ p.nom }}</a> ({{ p.quantite }} {{ p.unite }})</p>
+            <p class="mb-1"><i class="fas fa-exclamation-triangle text-warning"></i> Stock bas : <a href="{{ path('app_stock_index') }}">{{ p.nom }}</a> ({{ p.quantite }} {{ p.unite }})</p>
           {% endfor %}
         </div>
       </div>

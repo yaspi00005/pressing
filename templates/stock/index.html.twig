@@ -15,7 +15,7 @@
             <tbody>
               {% for p in produits %}
                 <tr class="{{ p.enAlerte ? 'table-warning' : '' }}">
-                  <td>{{ p.nom }}{% if p.enAlerte %} <i class="fas fa-triangle-exclamation text-warning" title="Stock bas"></i>{% endif %}</td>
+                  <td>{{ p.nom }}{% if p.enAlerte %} <i class="fas fa-exclamation-triangle text-warning" title="Stock bas"></i>{% endif %}</td>
                   <td>{{ p.quantite }} {{ p.unite }}</td>
                   <td>{{ p.seuilAlerte }}</td>
                   <td>
