@@ -21,12 +21,13 @@ class ArticlesCategories
     #[ORM\OneToMany(mappedBy: 'categorie', targetEntity: ArticlesSousCategorie::class, orphanRemoval: true)]
     private Collection $articlesSousCategories;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     private ?string $url = null;
 
     public function __construct()
     {
         $this->articlesSousCategories = new ArrayCollection();
+        $this->url = bin2hex(random_bytes(8));
     }
 
     public function getId(): ?int

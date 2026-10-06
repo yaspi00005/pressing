@@ -2,9 +2,7 @@
 
 {% block title %}Clients{% endblock %}
 {% block page_title %}Clients{% endblock %}
-{% block stylesheets %}
-  <link rel="stylesheet" href="{{ asset('workload/vendor/datatables/css/jquery.dataTables.min.css') }}">
-{% endblock %}
+{% block stylesheets %}{{ include('partials/_datatable_css.html.twig') }}{% endblock %}
 {% block body %}
 <div class="row">
   <div class="col-12">
@@ -15,14 +13,14 @@
       </div>
       <div class="card-body">
         <div class="table-responsive">
-          <table id="clients-table" class="display table" style="min-width: 600px">
+          <table class="table table-striped datatable" style="min-width: 600px">
             <thead>
               <tr>
                 <th>Clients</th>
                 <th>Téléphones</th>
                 <th>Genres</th>
                 <th>Adresse</th>
-                <th class="text-center">Actions</th>
+                <th class="text-center no-sort">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -47,9 +45,4 @@
   </div>
 </div>
 {% endblock %}
-{% block javascripts %}
-  <script src="{{ asset('workload/vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
-  <script>
-    jQuery(function ($) { $('#clients-table').DataTable({ language: { search: 'Rechercher :' } }); });
-  </script>
-{% endblock %}
+{% block javascripts %}{{ include('partials/_datatable_js.html.twig') }}{% endblock %}

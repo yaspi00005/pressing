@@ -26,8 +26,14 @@ class ArticlesSousCategorie
     #[ORM\Column]
     private ?int $prix = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
     private ?string $url = null;
+
+    public function __construct()
+    {
+        // Identifiant opaque utilisé dans les adresses (à la place de l'id numérique).
+        $this->url = bin2hex(random_bytes(8));
+    }
 
     public function getId(): ?int
     {

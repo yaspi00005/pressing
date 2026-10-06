@@ -1,0 +1,17 @@
+<script src="{{ asset('workload/vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
+<script>
+  jQuery(function ($) {
+    $('table.datatable').each(function () {
+      $(this).DataTable({
+        pageLength: 25,
+        order: [],
+        columnDefs: [{ orderable: false, targets: 'no-sort' }],
+        language: {
+          search: 'Rechercher :', lengthMenu: 'Afficher _MENU_ lignes', info: '_START_ à _END_ sur _TOTAL_',
+          infoEmpty: 'Aucune ligne', infoFiltered: '(filtré sur _MAX_)', zeroRecords: 'Aucun résultat',
+          paginate: { first: '«', previous: '‹', next: '›', last: '»' }
+        }
+      });
+    });
+  });
+</script>

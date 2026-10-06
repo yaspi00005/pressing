@@ -1,13 +1,19 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit ArticlesSousCategorie{% endblock %}
+{% block title %}Modifier l'article{% endblock %}
+{% block page_title %}Modifier l'article{% endblock %}
 
 {% block body %}
-    <h1 class="mb-3">Edit ArticlesSousCategorie</h1>
-
-    {{ include('articles_sous_categorie/_form.html.twig', {'button_label': 'Update'}) }}
-
-    <a href="{{ path('app_articles_sous_categorie_index') }}" class="btn btn-light mt-3">Retour à la liste</a>
-
-    {{ include('articles_sous_categorie/_delete_form.html.twig') }}
+<div class="row"><div class="col-lg-6 offset-lg-3">
+  <div class="card">
+    <div class="card-header"><h4 class="card-title">{{ articles_sous_categorie.noms }}</h4></div>
+    <div class="card-body">
+      {{ form_start(form) }}
+        {% for f in form %}{% if f.vars.name != '_token' %}<div class="mb-3">{{ form_label(f) }}{{ form_widget(f) }}{{ form_errors(f) }}</div>{% endif %}{% endfor %}
+        <button class="btn btn-primary">Enregistrer</button>
+        <a href="{{ path('app_articles_sous_categorie_show', {url: articles_sous_categorie.categorie.url}) }}" class="btn btn-light">Retour à la liste</a>
+      {{ form_end(form) }}
+    </div>
+  </div>
+</div></div>
 {% endblock %}
