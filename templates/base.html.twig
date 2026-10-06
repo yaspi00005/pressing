@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon" type="image/x-icon" href="{{domaine}}/assets/img/favicon.ico">
+    <title>Cryptocurrency - Bootstrap 4 Admin Template</title>
+    <link rel="stylesheet" type="text/css" href="{{domaine}}/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{domaine}}/assets/plugins/fontawesome/css/fontawesome.min.css" >
+    <link rel="stylesheet" type="text/css" href="{{domaine}}/assets/plugins/fontawesome/css/all.min.css" >
+    {% block stylesheets %}
+    {% endblock %}
+    <link rel="stylesheet" type="text/css" href="{{domaine}}/assets/css/style.css">
+    <!--[if lt IE 9]>
+		<script src="{{domaine}}/assets/js/html5shiv.min.js"></script>
+		<script src="{{domaine}}/assets/js/respond.min.js"></script>
+	<![endif]-->
+</head>
+
+<body>
+    <div class="main-wrapper">
+		<!-- Header -->
+        <div class="header">
+			<div class="header-left">
+				<a href="index.html" class="logo">
+					<img src="{{domaine}}/assets/img/logo.png" width="35" height="35" alt=""> <span>Crypto</span>
+				</a>
+			</div>
+			<a id="toggle_btn" href="javascript:void(0);"><i class="fas fa-bars"></i></a>
+            <a id="mobile_btn" class="mobile_btn float-left" href="#sidebar"><i class="fas fa-bars"></i></a>
+            <ul class="nav user-menu float-right">
+                <li class="nav-item dropdown d-none d-sm-block">
+                    <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown"><i class="far fa-bell"></i> <span class="badge badge-pill bg-danger float-right">3</span></a>
+                    <div class="dropdown-menu notifications">
+                        <div class="topnav-dropdown-header">
+                            <span>Notifications</span>
+                        </div>
+                        <div class="drop-scroll">
+                            <ul class="notification-list">
+                                <li class="notification-message">
+                                    <a href="activities.html">
+                                        <div class="media">
+											<span class="avatar">
+												<img alt="John Doe" src="{{domaine}}/assets/img/user.jpg" class="img-fluid rounded-circle">
+											</span>
+											<div class="media-body">
+												<p class="noti-details"><span class="noti-title">John Doe</span> added new task <span class="noti-title"></span></p>
+												<p class="noti-time"><span class="notification-time">4 mins ago</span></p>
+											</div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="notification-message">
+                                    <a href="activities.html">
+                                        <div class="media">
+											<span class="avatar">V</span>
+											<div class="media-body">
+												<p class="noti-details"><span class="noti-title">Tarah Shropshire</span> changed the task name <span class="noti-title"></span></p>
+												<p class="noti-time"><span class="notification-time">6 mins ago</span></p>
+											</div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="notification-message">
+                                    <a href="activities.html">
+                                        <div class="media">
+											<span class="avatar">L</span>
+											<div class="media-body">
+												<p class="noti-details"><span class="noti-title">Misty Tison</span> added <span class="noti-title">Domenic Houston</span> and <span class="noti-title">Claire Mapes</span> to project <span class="noti-title"> module</span></p>
+												<p class="noti-time"><span class="notification-time">8 mins ago</span></p>
+											</div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="notification-message">
+                                    <a href="activities.html">
+                                        <div class="media">
+											<span class="avatar">G</span>
+											<div class="media-body">
+												<p class="noti-details"><span class="noti-title">Rolland Webber</span> completed task <span class="noti-title"></span></p>
+												<p class="noti-time"><span class="notification-time">12 mins ago</span></p>
+											</div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="notification-message">
+                                    <a href="activities.html">
+                                        <div class="media">
+											<span class="avatar">V</span>
+											<div class="media-body">
+												<p class="noti-details"><span class="noti-title">Bernardo Galaviz</span> added new task <span class="noti-title">Private chat module</span></p>
+												<p class="noti-time"><span class="notification-time">2 days ago</span></p>
+											</div>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="topnav-dropdown-footer">
+                            <a href="activities.html">View all Notifications</a>
+                        </div>
+                    </div>
+                </li>
+                <li class="nav-item dropdown d-none d-sm-block">
+                    <a href="javascript:void(0);" id="open_msg_box" class="hasnotifications nav-link"><i class="far fa-comment"></i> <span class="badge badge-pill bg-danger float-right">8</span></a>
+                </li>
+                <li class="nav-item dropdown has-arrow">
+                    <a href="#" class="dropdown-toggle nav-link user-link" data-toggle="dropdown">
+                        <span class="user-img"><img class="rounded-circle" src="{{domaine}}/assets/img/user.jpg" width="40" alt="Admin">
+							<span class="status online"></span></span>
+                        <span>Admin</span>
+                    </a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" href="profile.html">My Profile</a>
+						<a class="dropdown-item" href="edit-profile.html">Edit Profile</a>
+						<a class="dropdown-item" href="settings.html">Settings</a>
+						<a class="dropdown-item" href="login.html">Logout</a>
+					</div>
+                </li>
+            </ul>
+            <div class="dropdown mobile-user-menu float-right">
+                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="profile.html">My Profile</a>
+                    <a class="dropdown-item" href="edit-profile.html">Edit Profile</a>
+                    <a class="dropdown-item" href="settings.html">Settings</a>
+                    <a class="dropdown-item" href="login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+		<!--Header End-->
+		
+		<!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-inner slimscroll">
+                <div id="sidebar-menu" class="sidebar-menu">
+                    <ul>
+                        <li class="menu-title">Principal</li>
+                        <li>
+                            <a href="index.html"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+                        </li>
+                         <li class="submenu">
+							<a href="#"><i class="fas fa-user"></i> <span> Clients </span> <span class="menu-arrow"></span></a>
+							<ul style="display: none;">
+                                <li><a href="{{ path('app_clients_new') }}">Nouveau client</a></li>
+								<li><a href="{{ path('app_clients_index') }}">Liste des Clients</a></li>
+							</ul>
+						</li>
+                         <li>
+                            <a href="{{ path('app_articles_categories_index')}}"><i class="fas fa-shirt" aria-hidden="true"></i> <span>Gestion articles</span></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+		<!-- Sidebar End -->
+		
+		<!-- Content -->
+       
+		{% block body %}{% endblock %}
+                   
+		<!-- Content End -->
+    </div>
+    <div class="sidebar-overlay" data-reff=""></div>
+    <script src="{{domaine}}/assets/js/jquery-3.5.1.min.js"></script>
+	<script src="{{domaine}}/assets/js/popper.min.js"></script>
+    <script src="{{domaine}}/assets/js/bootstrap.min.js"></script>
+    <script src="{{domaine}}/assets/js/jquery.slimscroll.js"></script>
+     {% block javascripts %}
+     {% endblock %}
+    <script src="{{domaine}}/assets/js/app.js"></script>
+</body>
+
+</html>
